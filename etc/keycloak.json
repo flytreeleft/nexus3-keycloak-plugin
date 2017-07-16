@@ -1,0 +1,10 @@
+{
+  "realm": "product-team",
+  "auth-server-url": "http://192.168.1.100:8080/auth",
+  "ssl-required": "external",
+  "resource": "nexus3",
+  "credentials": {
+    "secret": "a243eeab-4b2f-4d73-b66e-05fdc1da9da6"
+  },
+  "policy-enforcer": {}
+}
