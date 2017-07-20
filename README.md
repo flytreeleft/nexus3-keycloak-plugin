@@ -22,7 +22,7 @@ To avoid confusion, the conventions of the Sonatype reference will be used in th
 See [https://books.sonatype.com/nexus-book/reference3/install.html#directories](https://books.sonatype.com/nexus-book/reference3/install.html#directories)
 for reference.
 
-#### 1.Build the plugin
+#### 1. Build the plugin
 Build and install the into your local maven repository using the following commands:
 ```
 git clone https://github.com/flytreeleft/nexus3-keycloak-plugin.git
@@ -62,15 +62,19 @@ Activate the `Settings` tab, choose `confidential` for `Access Type`,
 then enable `Service Accounts Enabled` and `Authorization Enabled`,
 click `Save` button to make configuration effective.
 
+![](./docs/images/enable-service-accounts.png)
+
 Then Activate the `Service Account Roles` tab, choose `realm-management` for `Client Roles`,
 then select `view-clients` and `view-users` in `Available Roles`,
 click `Add selected` button to add them to `Assigned Roles`.
+
+![](./docs/images/choose-service-account-roles.png)
 
 #### 5. Create keycloak.json
 Create a *keycloak.json* file in `$install_dir/etc`.
 
 Login to your Keycloak, and navigate to
-"[Choose your realm] -> Clients -> nexus3 -> Installation -> [Activate 'Keycloak OIDC JSON' tab]".
+"[Choose your realm] -> Clients -> nexus3 -> Installation -> [Choose 'Keycloak OIDC JSON' option]".
 
 Copy the json content to `$install_dir/etc/keycloak.json`:
 ```
@@ -96,14 +100,20 @@ You have to login with an administrative nexus account to do so. The default adm
 After login you can navigate to the realm administration.
 Activate the `Keycloak Authentication Realm` plugin by dragging it to the right hand side.
 
+![](./docs/images/enable-keycloak-auth-realm.png)
+
 #### 2. Map Keycloak Realm Client Roles to Nexus Roles
 As a last step you have to map your Keycloak realm client roles to nexus internal roles.
+
+![](./docs/images/keycloak-realm-client-roles.png)
 
 A good starting point is mapping one Keycloak realm client role to *nx-admin* role,
 so you can start managing Nexus with your Keycloak Login.
 * Choose a Keycloak realm client role
 * Think up a new unique name for the mapped role
 * Add *nx-admin* to the contained roles
+
+![](./docs/images/map-keycloak-client-role-to-nexus.png)
 
 That's it. Now you can login your keycloak account.
 
