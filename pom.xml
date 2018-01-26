@@ -12,13 +12,13 @@
     <parent>
         <groupId>org.sonatype.nexus.plugins</groupId>
         <artifactId>nexus-plugins</artifactId>
-        <version>3.3.2-02</version>
+        <version>3.6.0-02</version>
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <keycloak.version>3.3.0.CR1-SNAPSHOT</keycloak.version>
+        <keycloak.version>3.4.3.Final</keycloak.version>
     </properties>
 
     <dependencies>
