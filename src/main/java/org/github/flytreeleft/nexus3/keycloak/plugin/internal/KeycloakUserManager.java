@@ -63,7 +63,8 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
 
     @Override
     public Set<User> listUsers() {
-        return this.client.findUsers().stream().map(u -> completeUserRolesAndSource(u)).collect(Collectors.toSet());
+        Set<User> users = this.client.findUsers();
+        return users.stream().map(u -> completeUserRolesAndSource(u)).collect(Collectors.toSet());
     }
 
     @Override
@@ -73,10 +74,8 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
 
     @Override
     public Set<User> searchUsers(UserSearchCriteria criteria) {
-        return this.client.findUserByCriteria(criteria)
-                     .stream()
-                     .map(u -> completeUserRolesAndSource(u))
-                     .collect(Collectors.toSet());
+        Set<User> users = this.client.findUserByCriteria(criteria);
+        return users.stream().map(u -> completeUserRolesAndSource(u)).collect(Collectors.toSet());
     }
 
     @Override

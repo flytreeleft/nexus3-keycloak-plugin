@@ -59,7 +59,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String username = (String) principals.getPrimaryPrincipal();
-        LOGGER.info("doGetAuthorizationInfo for " + username);
+//        LOGGER.info("doGetAuthorizationInfo for " + username);
         return new SimpleAuthorizationInfo(this.client.findRolesByUser(username));
     }
 
@@ -72,10 +72,9 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
         }
 
         UsernamePasswordToken t = (UsernamePasswordToken) token;
-        LOGGER.info("doGetAuthenticationInfo for " + t.getUsername());
 
         boolean authenticated = this.client.authenticate(t);
-        LOGGER.info("Keycloak authenticated: " + authenticated);
+//        LOGGER.info("doGetAuthenticationInfo for " + t.getUsername() + ": " + authenticated);
 
         if (authenticated) {
             return createSimpleAuthInfo(t);

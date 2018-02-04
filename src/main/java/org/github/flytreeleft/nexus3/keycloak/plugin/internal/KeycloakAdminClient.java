@@ -3,6 +3,7 @@ package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.ClientAuthenticator;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.Http;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.HttpMethod;
@@ -15,11 +16,14 @@ import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.util.JsonSerialization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Client needs service-account with at least "view-clients, view-users" roles for "realm-management"
@@ -27,6 +31,11 @@ import java.util.List;
  * https://gist.github.com/thomasdarimont/c4e739c5a319cf78a4cff3b87173a84b#file-keycloakadminclientexample-java-L27
  */
 public class KeycloakAdminClient {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*");
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakAdminClient.class);
+
     private final AdapterConfig config;
     private Http http;
     private KeycloakTokenManager tokenManager;
@@ -78,18 +87,30 @@ public class KeycloakAdminClient {
     }
 
     public UserRepresentation getUser(String username) {
+        if (!StringUtils.hasText(username)) {
+            return null;
+        }
+
         HttpMethod<List<UserRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users",
                                                                         this.config.getRealm());
 
-        List<UserRepresentation> users = httpMethod.param("username", username)
-                                                   .authentication()
+        // https://github.com/keycloak/keycloak/blob/master/services/src/main/java/org/keycloak/services/resources/admin/UsersResource.java#L177
+        boolean isEmail = EMAIL_PATTERN.matcher(username).matches();
+        if (isEmail) {
+            httpMethod.param("email", username);
+        } else {
+            httpMethod.param("username", username);
+        }
+        List<UserRepresentation> users = httpMethod.authentication()
                                                    .response()
                                                    .json(new TypeReference<List<UserRepresentation>>() {})
                                                    .execute();
 
         if (users != null) {
             for (UserRepresentation user : users) {
-                if (user.getUsername().equals(username)) {
+                // Note: We need to avoid someone try to register email as username to fake others.
+                boolean matched = isEmail ? username.equals(user.getEmail()) : username.equals(user.getUsername());
+                if (matched) {
                     return user;
                 }
             }
@@ -108,6 +129,7 @@ public class KeycloakAdminClient {
         HttpMethod<List<UserRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users",
                                                                         this.config.getRealm());
 
+        // https://github.com/keycloak/keycloak/blob/master/services/src/main/java/org/keycloak/services/resources/admin/UsersResource.java#L177
         return httpMethod.param("search", searchText)
                          .authentication()
                          .response()
