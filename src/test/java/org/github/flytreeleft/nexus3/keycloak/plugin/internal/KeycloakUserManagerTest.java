@@ -67,6 +67,11 @@ public class KeycloakUserManagerTest {
         Assert.assertEquals(2, this.m.searchUsers(usc).size());
     }
 
+    @Test(expected = UserNotFoundException.class)
+    public void testNotFoundUser() throws Exception {
+        this.m.getUser("42");
+    }
+
     @Test
     public void testGetUser() throws UserNotFoundException {
         when(this.mockedClient.findUserByUsername("1")).thenReturn(mockedUsers().iterator().next());
