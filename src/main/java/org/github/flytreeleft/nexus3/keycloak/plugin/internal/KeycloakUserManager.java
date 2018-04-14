@@ -80,7 +80,10 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
 
     @Override
     public User getUser(String userId) throws UserNotFoundException {
-        User u = this.client.findUserByUsername(userId);
-        return completeUserRolesAndSource(u);
+        User foundUser = this.client.findUserByUsername(userId);
+        if (foundUser == null) {
+            throw new UserNotFoundException(userId);
+        }
+        return completeUserRolesAndSource(foundUser);
     }
 }
