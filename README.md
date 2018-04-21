@@ -30,9 +30,12 @@ cd nexus3-keycloak-plugin
 mvn clean install
 ```
 
+Note: You can download the compiled jar from the [release page](https://github.com/flytreeleft/nexus3-keycloak-plugin/releases)
+directly, just choose the latest version.
+
 #### 2. Copy all needed jars into nexus system folder
 ```
-PLUGIN_VERSION=0.1.0-SNAPSHOT
+PLUGIN_VERSION=0.2.1-SNAPSHOT
 jars="org/github/flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION/nexus3-keycloak-plugin-$PLUGIN_VERSION.jar"
 
 for jar in $(echo $jars | sed 's/ /\n/g'); do
