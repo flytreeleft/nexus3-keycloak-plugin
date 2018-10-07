@@ -142,7 +142,7 @@ bundle:install -s file://[ABSOLUTE_PATH_TO_YOUR_JAR]
 
 ## Docker
 
-In the directory `docker`, you can execute command `bash docker/build.sh` to build your Nexus3 Docker image with this plugin.
+You can execute command `bash docker/build.sh` to build your Nexus3 Docker image with this plugin.
 The image is based on [cavemandaveman/nexus](https://github.com/cavemandaveman/nexus) which is running Nexus v3.6.0-02.
 You can change the version of the base image or this plugin in `docker/Dockerfile`.
 
