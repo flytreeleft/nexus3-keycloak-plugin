@@ -3,12 +3,12 @@ Nexus3 Keycloak Plugin
 This plugin adds a Keycloak realm to Sonatype Nexus OSS and enables you to
 authenticate with Keycloak Realm Users and authorize with keycloak realm client roles.
 
-It works with Nexus 3.x and Keycloak 3.x
+It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
 ## Prerequisites
 * JDK 8+ is installed
 * Apache Maven is installed
-* Sonatype Nexus OSS 3.x is installed 
+* Sonatype Nexus OSS 3.x is installed
 
 ## Installation
 When Nexus gets downloaded and unzipped, there are typically two directories created:
@@ -35,7 +35,7 @@ directly, just choose the latest version.
 
 #### 2. Copy all needed jars into nexus system folder
 ```
-PLUGIN_VERSION=0.2.1-SNAPSHOT
+PLUGIN_VERSION=0.3.0-SNAPSHOT
 jars="org/github/flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION/nexus3-keycloak-plugin-$PLUGIN_VERSION.jar"
 
 for jar in $(echo $jars | sed 's/ /\n/g'); do
@@ -131,7 +131,7 @@ After that (re-)start nexus. It will then startup with an interactive console en
 (If the console doesn't show up, you may hit the Enter key after startup).
 Your console should look like this afterwards:
 ```
-karaf@root()> 
+karaf@root()>
 ```
 
 #### 2. Install plugin bundle
@@ -139,6 +139,15 @@ Within the console just type
 ```
 bundle:install -s file://[ABSOLUTE_PATH_TO_YOUR_JAR]
 ```
+
+## Docker
+
+In the directory `docker`, you can execute command `bash docker/build.sh` to build your Nexus3 Docker image with this plugin.
+The image is based on [cavemandaveman/nexus](https://github.com/cavemandaveman/nexus) which is running Nexus v3.6.0-02.
+You can change the version of the base image or this plugin in `docker/Dockerfile`.
+
+After the image is built, you should prepare your `keycloak.json` and put it to `docker/` first, then execute command `bash docker/run.sh` to start the Nexus3 container. If you want to change the default port/volume mappings, just edit `docker/run.sh`
+before starting container.
 
 ## Contributing
 [![GitHub contributors](https://img.shields.io/github/contributors/flytreeleft/nexus3-keycloak-plugin.svg)](https://github.com/flytreeleft/nexus3-keycloak-plugin/graphs/contributors)
