@@ -60,7 +60,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String username = (String) principals.getPrimaryPrincipal();
 //        LOGGER.info("doGetAuthorizationInfo for " + username);
-        return new SimpleAuthorizationInfo(this.client.findRolesByUser(username));
+        return new SimpleAuthorizationInfo(this.client.findRoleIdsByUserId(username));
     }
 
     @Override

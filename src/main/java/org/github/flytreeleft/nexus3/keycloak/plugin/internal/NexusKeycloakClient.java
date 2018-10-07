@@ -1,5 +1,15 @@
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.mapper.KeycloakMapper;
@@ -11,16 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.security.role.Role;
 import org.sonatype.nexus.security.user.User;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
-
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Singleton
 @Named("NexusKeycloakClient")
@@ -37,27 +37,39 @@ public class NexusKeycloakClient {
         return accessTokenResponse != null && StringUtils.hasText(accessTokenResponse.getToken());
     }
 
-    public Set<String> findRolesByUser(String username) {
+    public Set<String> findRoleIdsByUserId(String userId) {
         String client = getKeycloakAdminClient().getConfig().getResource();
-        List<RoleRepresentation> roles = getKeycloakAdminClient().getRealmClientRolesOfUser(client, username);
+        UserRepresentation user = getKeycloakAdminClient().getUser(userId);
 
-        return KeycloakMapper.toRoleNames(roles);
+        List<RoleRepresentation> clientRoles = getKeycloakAdminClient().getRealmClientRolesOfUser(client, user);
+        List<RoleRepresentation> realmRoles = getKeycloakAdminClient().getRealmRolesOfUser(user);
+
+        return KeycloakMapper.toRoleIds(clientRoles, realmRoles);
     }
 
-    public User findUserByUsername(String username) {
-        UserRepresentation user = getKeycloakAdminClient().getUser(username);
+    public User findUserByUserId(String userId) {
+        UserRepresentation user = getKeycloakAdminClient().getUser(userId);
 
         return KeycloakMapper.toUser(user);
     }
 
     public Role findRoleByRoleId(String roleId) {
-        String client = getKeycloakAdminClient().getConfig().getResource();
-        RoleRepresentation role = getKeycloakAdminClient().getRealmClientRole(client, roleId);
+        RoleRepresentation role;
 
+        if (roleId.startsWith(KeycloakMapper.REALM_ROLE_PREFIX)) {
+            String roleName = roleId.substring(KeycloakMapper.REALM_ROLE_PREFIX.length() + 1);
+            role = getKeycloakAdminClient().getRealmRoleByRoleName(roleName);
+        } else {
+            String roleName = roleId.startsWith(KeycloakMapper.CLIENT_ROLE_PREFIX)
+                              ? roleId.substring(KeycloakMapper.CLIENT_ROLE_PREFIX.length() + 1)
+                              : roleId;
+            String client = getKeycloakAdminClient().getConfig().getResource();
+            role = getKeycloakAdminClient().getRealmClientRoleByRoleName(client, roleName);
+        }
         return KeycloakMapper.toRole(role);
     }
 
-    public Set<String> findAllUsernames() {
+    public Set<String> findAllUserIds() {
         return findUsers().stream().map(User::getUserId).collect(Collectors.toSet());
     }
 
@@ -85,9 +97,10 @@ public class NexusKeycloakClient {
 
     public Set<Role> findRoles() {
         String client = getKeycloakAdminClient().getConfig().getResource();
-        List<RoleRepresentation> roles = getKeycloakAdminClient().getRealmClientRoles(client);
+        List<RoleRepresentation> clientRoles = getKeycloakAdminClient().getRealmClientRoles(client);
+        List<RoleRepresentation> realmRoles = getKeycloakAdminClient().getRealmRoles();
 
-        return KeycloakMapper.toRoles(roles);
+        return KeycloakMapper.toRoles(clientRoles, realmRoles);
     }
 
     private synchronized KeycloakAdminClient getKeycloakAdminClient() {

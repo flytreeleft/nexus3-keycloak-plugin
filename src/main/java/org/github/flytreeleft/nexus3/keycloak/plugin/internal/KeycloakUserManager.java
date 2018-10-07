@@ -12,6 +12,12 @@
  */
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.enterprise.inject.Typed;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import com.google.inject.Inject;
 import org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm;
 import org.slf4j.Logger;
@@ -22,12 +28,6 @@ import org.sonatype.nexus.security.user.User;
 import org.sonatype.nexus.security.user.UserManager;
 import org.sonatype.nexus.security.user.UserNotFoundException;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
-
-import javax.enterprise.inject.Typed;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Singleton
 @Typed(UserManager.class)
@@ -54,36 +54,37 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
         return SOURCE;
     }
 
-    private User completeUserRolesAndSource(User user) {
-        user.setSource(SOURCE);
-        Set<String> roles = this.client.findRolesByUser(user.getUserId());
-        user.setRoles(roles.stream().map(r -> new RoleIdentifier(SOURCE, r)).collect(Collectors.toSet()));
-        return user;
-    }
-
     @Override
     public Set<User> listUsers() {
         Set<User> users = this.client.findUsers();
-        return users.stream().map(u -> completeUserRolesAndSource(u)).collect(Collectors.toSet());
+        return users.stream().map(user -> completeUserRolesAndSource(user)).collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> listUserIds() {
-        return this.client.findAllUsernames();
+        return this.client.findAllUserIds();
     }
 
     @Override
     public Set<User> searchUsers(UserSearchCriteria criteria) {
         Set<User> users = this.client.findUserByCriteria(criteria);
-        return users.stream().map(u -> completeUserRolesAndSource(u)).collect(Collectors.toSet());
+        return users.stream().map(user -> completeUserRolesAndSource(user)).collect(Collectors.toSet());
     }
 
     @Override
     public User getUser(String userId) throws UserNotFoundException {
-        User foundUser = this.client.findUserByUsername(userId);
+        User foundUser = this.client.findUserByUserId(userId);
         if (foundUser == null) {
             throw new UserNotFoundException(userId);
         }
         return completeUserRolesAndSource(foundUser);
+    }
+
+    private User completeUserRolesAndSource(User user) {
+        user.setSource(SOURCE);
+
+        Set<String> roles = this.client.findRoleIdsByUserId(user.getUserId());
+        user.setRoles(roles.stream().map(role -> new RoleIdentifier(SOURCE, role)).collect(Collectors.toSet()));
+        return user;
     }
 }
