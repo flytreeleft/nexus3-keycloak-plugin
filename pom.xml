@@ -5,7 +5,7 @@
 
     <groupId>org.github.flytreeleft</groupId>
     <artifactId>nexus3-keycloak-plugin</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <packaging>bundle</packaging>
 
@@ -18,7 +18,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <keycloak.version>3.4.3.Final</keycloak.version>
+        <keycloak.version>4.5.0.Final</keycloak.version>
     </properties>
 
     <dependencies>
