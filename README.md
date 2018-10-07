@@ -5,6 +5,19 @@ authenticate with Keycloak Realm Users and authorize with keycloak realm client 
 
 It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
+## Warning
+
+If you are using the version 0.2.x, and want to upgrade the plugin to 0.3.x,
+you should create new roles in Nexus3 becuase the new version supports to
+mapping the Realm and Client Roles of Keycloak.
+
+But don't worry about your data or the existing role mappings, they still will work well.
+The new version is compatible with the old version.
+
+If there is something wrong after you upgrade to the new version.
+**DO NOT DO ANY SAVE or UPDATE ACTIONS**, just go back to the old version and restart,
+then create a issue to report your problem.
+
 ## Prerequisites
 * JDK 8+ is installed
 * Apache Maven is installed
