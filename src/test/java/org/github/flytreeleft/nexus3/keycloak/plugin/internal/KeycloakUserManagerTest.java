@@ -54,9 +54,9 @@ public class KeycloakUserManagerTest {
 
     @Test
     public void testListUserIds() {
-        when(this.mockedClient.findAllUsernames()).thenReturn(mockedUsers().stream()
-                                                                           .map(User::getUserId)
-                                                                           .collect(Collectors.toSet()));
+        when(this.mockedClient.findAllUserIds()).thenReturn(mockedUsers().stream()
+                                                                         .map(User::getUserId)
+                                                                         .collect(Collectors.toSet()));
         Assert.assertEquals(2, this.m.listUserIds().size());
     }
 
@@ -74,7 +74,7 @@ public class KeycloakUserManagerTest {
 
     @Test
     public void testGetUser() throws UserNotFoundException {
-        when(this.mockedClient.findUserByUsername("1")).thenReturn(mockedUsers().iterator().next());
+        when(this.mockedClient.findUserByUserId("1")).thenReturn(mockedUsers().iterator().next());
         User u = mockedUsers().iterator().next();
         u.setSource("Keycloak");
         Assert.assertEquals(u, this.m.getUser("1"));

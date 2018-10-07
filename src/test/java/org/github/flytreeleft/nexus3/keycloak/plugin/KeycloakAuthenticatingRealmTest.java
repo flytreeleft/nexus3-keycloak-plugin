@@ -33,7 +33,7 @@ public class KeycloakAuthenticatingRealmTest {
     @Test
     public void testDoGetAuthorizationInfoPrincipalCollection() {
         PrincipalCollection principals = new SimplePrincipalCollection("Test1", KeycloakAuthenticatingRealm.NAME);
-        Mockito.when(this.mockedClient.findRolesByUser("Test1")).thenReturn(fakeAuths());
+        Mockito.when(this.mockedClient.findRoleIdsByUserId("Test1")).thenReturn(fakeAuths());
         AuthorizationInfo info = this.r.doGetAuthorizationInfo(principals);
         Assert.assertEquals(2, info.getRoles().size());
         Assert.assertTrue(info.getRoles().contains("role1"));

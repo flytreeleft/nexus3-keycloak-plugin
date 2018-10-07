@@ -85,10 +85,10 @@ public class KeycloakAdminClientTest {
 
     @Test
     public void testGetRealmClientRole() {
-        RoleRepresentation role = this.client.getRealmClientRole(REALM_CLIENT, "unknown");
+        RoleRepresentation role = this.client.getRealmClientRoleByRoleName(REALM_CLIENT, "unknown");
         Assert.assertNull(role);
 
-        role = this.client.getRealmClientRole(REALM_CLIENT, "uma_protection");
+        role = this.client.getRealmClientRoleByRoleName(REALM_CLIENT, "uma_protection");
         Assert.assertNotNull(role);
     }
 
