@@ -15,7 +15,7 @@ But don't worry about your data or the existing role mappings, they still will w
 The new version is compatible with the old version.
 
 If there is something wrong after you upgrade to the new version.
-**DO NOT DO ANY SAVE or UPDATE ACTIONS**, just go back to the old version and restart,
+**DO NOT DO ANY SAVE or UPDATE ACTIONS**, just go back to the old version and restart Nexus3,
 then create a issue to report your problem.
 
 ## Prerequisites
