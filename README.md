@@ -13,6 +13,8 @@ mapping the Realm and Client Roles of Keycloak.
 
 But don't worry about your data or the existing role mappings, they still will work well.
 The new version is compatible with the old version.
+In the new version, the original role name which is from Keycloak
+will be prepended `RealmRole:` (If it's a Realm Role) or `ClientRole:` (If it's a Client Role).
 
 If there is something wrong after you upgrade to the new version.
 **DO NOT DO ANY SAVE or UPDATE ACTIONS**, just go back to the old version and restart Nexus3,
