@@ -187,6 +187,8 @@ public class KeycloakAdminClient {
             return null;
         }
 
+        // GET /{realm}/users/{id}/role-mappings/clients/{client}/composite
+        // Get effective client-level roles including composite roles and normal roles.
         ClientRepresentation client = getRealmClient(clientId);
         HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get(
                 "/admin/realms/%s/users/%s/role-mappings/clients/%s/composite/",
@@ -207,9 +209,12 @@ public class KeycloakAdminClient {
             return null;
         }
 
-        HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users/%s/role-mappings/realm/composite/",
-                                                                        this.config.getRealm(),
-                                                                        user.getId());
+        // GET /{realm}/users/{id}/role-mappings/realm/composite
+        // Get effective realm-level roles including composite roles and normal roles.
+        HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get(
+                "/admin/realms/%s/users/%s/role-mappings/realm/composite/",
+                this.config.getRealm(),
+                user.getId());
 
         return httpMethod.authentication().response().json(new TypeReference<List<RoleRepresentation>>() {}).execute();
     }
