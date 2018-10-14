@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.KeycloakUserManager;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.sonatype.nexus.security.role.Role;
@@ -15,7 +16,7 @@ import org.sonatype.nexus.security.user.UserStatus;
 public class KeycloakMapper {
     public static final String CLIENT_ROLE_PREFIX = "ClientRole";
     public static final String REALM_ROLE_PREFIX = "RealmRole";
-    public static final String GROUP_ROLE_PREFIX = "RealmGroup";
+    public static final String REALM_GROUP_PREFIX = "RealmGroup";
 
     public static User toUser(UserRepresentation representation) {
         if (representation == null) {
@@ -51,7 +52,7 @@ public class KeycloakMapper {
         String prefix = representation.getClientRole() ? CLIENT_ROLE_PREFIX : REALM_ROLE_PREFIX;
         String roleName = String.format("%s:%s", prefix, representation.getName());
 
-        // Use role name as role-id and name of Nexus3
+        // Use role name as role-id and role-name of Nexus3
         role.setRoleId(roleName);
         role.setName(roleName);
         if (representation.getDescription() != null && !representation.getDescription().isEmpty()) {
@@ -63,27 +64,47 @@ public class KeycloakMapper {
         return role;
     }
 
-    @SafeVarargs
-    public static Set<Role> toRoles(List<RoleRepresentation>... lists) {
+    public static Role toRole(GroupRepresentation representation) {
+        if (representation == null) {
+            return null;
+        }
+
+        Role role = new Role();
+        String roleName = String.format("%s:%s", REALM_GROUP_PREFIX, representation.getPath());
+
+        role.setRoleId(roleName);
+        role.setName(roleName);
+        role.setReadOnly(true);
+        role.setSource(KeycloakUserManager.SOURCE);
+
+        return role;
+    }
+
+    public static Set<Role> toRoles(List<?>... lists) {
         Set<Role> roles = new LinkedHashSet<>();
 
-        for (List<RoleRepresentation> list : lists) {
-            if (list != null && !list.isEmpty()) {
-                // Just for compatible
-                for (RoleRepresentation representation : list) {
-                    if (representation.getClientRole()) {
-                        roles.add(toCompatibleRole(representation));
-                    }
-                }
+        for (List<?> list : lists) {
+            if (list == null || list.isEmpty()) {
+                continue;
+            }
 
-                roles.addAll(list.stream().map(KeycloakMapper::toRole).collect(Collectors.toList()));
+            for (Object representation : list) {
+                if (representation instanceof RoleRepresentation) {
+                    // Just for compatible
+                    if (((RoleRepresentation) representation).getClientRole()) {
+                        roles.add(toCompatibleRole((RoleRepresentation) representation));
+                    }
+
+                    roles.add(toRole((RoleRepresentation) representation));
+                } else if (representation instanceof GroupRepresentation) {
+                    roles.add(toRole((GroupRepresentation) representation));
+                }
             }
         }
         return roles;
     }
 
-    @SafeVarargs
-    public static Set<String> toRoleIds(List<RoleRepresentation>... lists) {
+    public static Set<String> toRoleIds(List<?>... lists) {
         Set<String> roleIds = new LinkedHashSet<>();
         roleIds.addAll(toRoles(lists).stream().map(Role::getRoleId).collect(Collectors.toList()));
 

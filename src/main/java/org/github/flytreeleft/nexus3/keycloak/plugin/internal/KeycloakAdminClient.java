@@ -21,6 +21,7 @@ import org.keycloak.constants.ServiceUrlConstants;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.adapters.config.AdapterConfig;
 import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.util.JsonSerialization;
@@ -161,6 +162,21 @@ public class KeycloakAdminClient {
         return httpMethod.authentication().response().json(RoleRepresentation.class).execute();
     }
 
+    public GroupRepresentation getRealmGroupByGroupPath(String groupPath) {
+        String trimmedGroupPath = groupPath != null ? groupPath.trim() : null;
+        if (trimmedGroupPath == null || trimmedGroupPath.isEmpty()) {
+            return null;
+        }
+
+        List<GroupRepresentation> groups = getRealmGroups();
+        for (GroupRepresentation group : groups) {
+            if (group.getPath().equals(trimmedGroupPath)) {
+                return group;
+            }
+        }
+        return null;
+    }
+
     public List<RoleRepresentation> getRealmClientRoles(String clientId) {
         ClientRepresentation client = getRealmClient(clientId);
         HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/clients/%s/roles",
@@ -175,6 +191,17 @@ public class KeycloakAdminClient {
                                                                         this.config.getRealm());
 
         return httpMethod.authentication().response().json(new TypeReference<List<RoleRepresentation>>() {}).execute();
+    }
+
+    public List<GroupRepresentation> getRealmGroups() {
+        HttpMethod<List<GroupRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/groups",
+                                                                         this.config.getRealm());
+
+        List<GroupRepresentation> groups = httpMethod.authentication()
+                                                     .response()
+                                                     .json(new TypeReference<List<GroupRepresentation>>() {})
+                                                     .execute();
+        return getAllGroupsRecursively(groups);
     }
 
     public List<RoleRepresentation> getRealmClientRolesOfUser(String clientId, String username) {
@@ -219,6 +246,18 @@ public class KeycloakAdminClient {
         return httpMethod.authentication().response().json(new TypeReference<List<RoleRepresentation>>() {}).execute();
     }
 
+    public List<GroupRepresentation> getRealmGroupsOfUser(UserRepresentation user) {
+        if (user == null) {
+            return null;
+        }
+
+        HttpMethod<List<GroupRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users/%s/groups",
+                                                                         this.config.getRealm(),
+                                                                         user.getId());
+
+        return httpMethod.authentication().response().json(new TypeReference<List<GroupRepresentation>>() {}).execute();
+    }
+
     public List<RoleRepresentation> combineRoles(Collection<RoleRepresentation>... collections) {
         List<RoleRepresentation> roles = new ArrayList<>();
 
@@ -228,6 +267,19 @@ public class KeycloakAdminClient {
             }
         }
         return roles;
+    }
+
+    public List<GroupRepresentation> getAllGroupsRecursively(List<GroupRepresentation> groups) {
+        List<GroupRepresentation> list = new ArrayList<>();
+        if (groups == null || groups.isEmpty()) {
+            return list;
+        }
+
+        for (GroupRepresentation group : groups) {
+            list.add(group);
+            list.addAll(getAllGroupsRecursively(group.getSubGroups()));
+        }
+        return list;
     }
 
     public AdapterConfig getConfig() {

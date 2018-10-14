@@ -14,6 +14,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.mapper.KeycloakMapper;
 import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
@@ -43,8 +44,9 @@ public class NexusKeycloakClient {
 
         List<RoleRepresentation> clientRoles = getKeycloakAdminClient().getRealmClientRolesOfUser(client, user);
         List<RoleRepresentation> realmRoles = getKeycloakAdminClient().getRealmRolesOfUser(user);
+        List<GroupRepresentation> realmGroups = getKeycloakAdminClient().getRealmGroupsOfUser(user);
 
-        return KeycloakMapper.toRoleIds(clientRoles, realmRoles);
+        return KeycloakMapper.toRoleIds(clientRoles, realmRoles, realmGroups);
     }
 
     public User findUserByUserId(String userId) {
@@ -56,7 +58,12 @@ public class NexusKeycloakClient {
     public Role findRoleByRoleId(String roleId) {
         RoleRepresentation role;
 
-        if (roleId.startsWith(KeycloakMapper.REALM_ROLE_PREFIX)) {
+        if (roleId.startsWith(KeycloakMapper.REALM_GROUP_PREFIX)) {
+            String groupPath = roleId.substring(KeycloakMapper.REALM_GROUP_PREFIX.length() + 1);
+            GroupRepresentation group = getKeycloakAdminClient().getRealmGroupByGroupPath(groupPath);
+
+            return KeycloakMapper.toRole(group);
+        } else if (roleId.startsWith(KeycloakMapper.REALM_ROLE_PREFIX)) {
             String roleName = roleId.substring(KeycloakMapper.REALM_ROLE_PREFIX.length() + 1);
             role = getKeycloakAdminClient().getRealmRoleByRoleName(roleName);
         } else {
@@ -99,8 +106,9 @@ public class NexusKeycloakClient {
         String client = getKeycloakAdminClient().getConfig().getResource();
         List<RoleRepresentation> clientRoles = getKeycloakAdminClient().getRealmClientRoles(client);
         List<RoleRepresentation> realmRoles = getKeycloakAdminClient().getRealmRoles();
+        List<GroupRepresentation> realmGroups = getKeycloakAdminClient().getRealmGroups();
 
-        return KeycloakMapper.toRoles(clientRoles, realmRoles);
+        return KeycloakMapper.toRoles(clientRoles, realmRoles, realmGroups);
     }
 
     private synchronized KeycloakAdminClient getKeycloakAdminClient() {
