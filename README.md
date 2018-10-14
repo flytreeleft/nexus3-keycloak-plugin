@@ -9,16 +9,23 @@ It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
 If you are using the version 0.2.x, and want to upgrade the plugin to 0.3.x,
 you should create new roles in Nexus3 becuase the new version supports to
-mapping the Realm and Client Roles of Keycloak.
+mapping the **Realm-Roles**, **Client-Roles** or **Realm-Groups** of Keycloak.
 
 But don't worry about your data or the existing role mappings, they still will work well.
 The new version is compatible with the old version.
-In the new version, the original role name which is from Keycloak
-will be prepended `RealmRole:` (If it's a Realm Role) or `ClientRole:` (If it's a Client Role).
+In the new version, the original role/group name which is from Keycloak
+will be prepended `RealmRole:` (If it's a Realm Role), `ClientRole:` (If it's a Client Role)
+or `RealmGroup:` (If it's a Realm Group).
+
+> Note: The non-prefixed roles are the Client Roles, and you'd better not map them to the Nexus3 roles again.
 
 If there is something wrong after you upgrade to the new version.
 **DO NOT DO ANY SAVE or UPDATE ACTIONS**, just go back to the old version and restart Nexus3,
 then create a issue to report your problem.
+
+## Development
+
+Read the details in [develop/README.md](./develop/README.md).
 
 ## Prerequisites
 * JDK 8+ is installed
@@ -50,7 +57,7 @@ directly, just choose the latest version.
 
 #### 2. Copy all needed jars into nexus system folder
 ```
-PLUGIN_VERSION=0.3.1-SNAPSHOT
+PLUGIN_VERSION=0.3.2-SNAPSHOT
 jars="org/github/flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION/nexus3-keycloak-plugin-$PLUGIN_VERSION.jar"
 
 for jar in $(echo $jars | sed 's/ /\n/g'); do
