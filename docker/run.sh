@@ -6,7 +6,7 @@ KEYCLOAK_CONFIG="${DIR}/keycloak.json"
 
 DCR_NAME=nexus3
 DCR_IMAGE=nexus-oss/nexus3
-DCR_IMAGE_VERSION=3.6.0-02-r3
+DCR_IMAGE_VERSION=3.6.0-02-r4
 
 if [ ! -e "${KEYCLOAK_CONFIG}" ]; then
     echo "Please provide your keycloak.json and put it to ${DIR}"
