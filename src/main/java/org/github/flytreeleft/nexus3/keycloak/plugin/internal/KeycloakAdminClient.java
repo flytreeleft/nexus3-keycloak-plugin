@@ -189,7 +189,7 @@ public class KeycloakAdminClient {
 
         ClientRepresentation client = getRealmClient(clientId);
         HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get(
-                "/admin/realms/%s/users/%s/role-mappings/clients/%s",
+                "/admin/realms/%s/users/%s/role-mappings/clients/%s/composite/",
                 this.config.getRealm(),
                 user.getId(),
                 client.getId());
@@ -207,7 +207,7 @@ public class KeycloakAdminClient {
             return null;
         }
 
-        HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users/%s/role-mappings/realm",
+        HttpMethod<List<RoleRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users/%s/role-mappings/realm/composite/",
                                                                         this.config.getRealm(),
                                                                         user.getId());
 
