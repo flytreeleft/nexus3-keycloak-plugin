@@ -1,38 +1,41 @@
 Nexus3 Keycloak Plugin
 ===============================
+
 This plugin adds a Keycloak realm to Sonatype Nexus OSS and enables you to
-authenticate with Keycloak Realm Users and authorize with keycloak realm client roles.
+authenticate with Keycloak Realm Users and authorize with Keycloak realm/client roles or groups.
 
 It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
 ## Warning
 
-If you are using the version 0.2.x, and want to upgrade the plugin to 0.3.x,
-you should create new roles in Nexus3 becuase the new version supports to
-mapping the **Realm-Roles**, **Client-Roles** or **Realm-Groups** of Keycloak.
+If you are using the version 0.2.x of this plugin, and want to upgrade the plugin to 0.3.x,
+you should create some new roles in Nexus3, becuase the new version of the plugin supports to
+map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak to the Nexus3 roles.
 
-But don't worry about your data or the existing role mappings, they still will work well.
-The new version is compatible with the old version.
-In the new version, the original role/group name which is from Keycloak
-will be prepended `RealmRole:` (If it's a Realm Role), `ClientRole:` (If it's a Client Role)
-or `RealmGroup:` (If it's a Realm Group).
+But don't worry about your data or the existing role mappings, they will still work well.
+The latest version of the plugin is compatible with the old version.
+In the new version, the original Keycloak role/group name will be prepended with
+`RealmRole:` (If it's a Realm-Role), `ClientRole:` (If it's a Client-Role) or `RealmGroup:` (If it's a Realm-Group).
 
-> Note: The non-prefixed roles are the Client Roles, and you'd better not map them to the Nexus3 roles again.
+> Note: The non-prefixed roles are all the Client-Roles, and you'd better not map them to the Nexus3 roles again,
+> they will not be shown again in the release version.
 
-If there is something wrong after you upgrade to the new version.
-**DO NOT DO ANY SAVE or UPDATE ACTIONS**, just go back to the old version and restart Nexus3,
-then create a issue to report your problem.
+If something goes wrong when you upgraded the plugin to the new version.
+**DO NOT** save or update your configurations again, just go back to the old version and restart Nexus3,
+then [create](https://github.com/flytreeleft/nexus3-keycloak-plugin/issues/new) an issue to report your problem.
 
 ## Development
 
 Read the details in [develop/README.md](./develop/README.md).
 
 ## Prerequisites
+
 * JDK 8+ is installed
 * Apache Maven is installed
 * Sonatype Nexus OSS 3.x is installed
 
 ## Installation
+
 When Nexus gets downloaded and unzipped, there are typically two directories created:
 * nexus-3.3.2-02
 * sonatype-work/nexus3
@@ -45,6 +48,7 @@ See [https://books.sonatype.com/nexus-book/reference3/install.html#directories](
 for reference.
 
 #### 1. Build the plugin
+
 Build and install the into your local maven repository using the following commands:
 ```
 git clone https://github.com/flytreeleft/nexus3-keycloak-plugin.git
@@ -56,6 +60,7 @@ Note: You can download the compiled jar from the [release page](https://github.c
 directly, just choose the latest version.
 
 #### 2. Copy all needed jars into nexus system folder
+
 ```
 PLUGIN_VERSION=0.3.2-SNAPSHOT
 jars="org/github/flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION/nexus3-keycloak-plugin-$PLUGIN_VERSION.jar"
@@ -67,6 +72,7 @@ done
 ```
 
 #### 3. Add bundle to startup properties
+
 Append the following line to *startup.properties* file found in `$install_dir/etc/karaf`.
 
 Please replace [PLUGIN_VERSION] by the current plugin version.
@@ -80,6 +86,7 @@ echo "mvn\\:org.github.flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION = 200"
 ```
 
 #### 4. Configure Keycloak realm client
+
 Login to your Keycloak, and navigate to
 "[Choose your realm] -> Clients -> [Choose the existing client or create a new client, e.g. 'nexus3']".
 
@@ -96,6 +103,7 @@ click `Add selected` button to add them to `Assigned Roles`.
 ![](./docs/images/choose-service-account-roles.png)
 
 #### 5. Create keycloak.json
+
 Create a *keycloak.json* file in `$install_dir/etc`.
 
 Login to your Keycloak, and navigate to
@@ -116,7 +124,9 @@ echo '{
 ```
 
 ## Usage
+
 #### 1. Activate Plugin
+
 After installation you have to activate the plugin in the administration frontend.
 You have to login with an administrative nexus account to do so. The default admin credentials are
 * username: *admin*
@@ -128,6 +138,7 @@ Activate the `Keycloak Authentication Realm` plugin by dragging it to the right 
 ![](./docs/images/enable-keycloak-auth-realm.png)
 
 #### 2. Map Keycloak Realm Client Roles to Nexus Roles
+
 As a last step you have to map your Keycloak realm client roles to nexus internal roles.
 
 ![](./docs/images/keycloak-realm-client-roles.png)
@@ -143,7 +154,9 @@ so you can start managing Nexus with your Keycloak Login.
 That's it. Now you can login your keycloak account.
 
 ## Development
+
 #### 1. Start nexus with console
+
 Move into your `$install_dir`. Edit the file `bin/nexus.vmoptions` to contain the following line
 ```
 -Dkaraf.startLocalConsole=true
@@ -157,6 +170,7 @@ karaf@root()>
 ```
 
 #### 2. Install plugin bundle
+
 Within the console just type
 ```
 bundle:install -s file://[ABSOLUTE_PATH_TO_YOUR_JAR]
@@ -166,16 +180,19 @@ bundle:install -s file://[ABSOLUTE_PATH_TO_YOUR_JAR]
 
 You can execute command `bash docker/build.sh` to build your Nexus3 Docker image with this plugin.
 The image is based on [cavemandaveman/nexus](https://github.com/cavemandaveman/nexus) which is running Nexus v3.6.0-02.
-You can change the version of the base image or this plugin in `docker/Dockerfile`.
+You can change the version of the base image or the version of this plugin in `docker/Dockerfile`.
 
-After the image is built, you should prepare your `keycloak.json` and put it to `docker/` first, then execute command `bash docker/run.sh` to start the Nexus3 container. If you want to change the default port/volume mappings, just edit `docker/run.sh`
-before starting container.
+After the image has been built, you should [prepare](#5-create-keycloakjson) your `keycloak.json`
+and put it into the directory `docker/`, then execute command `bash docker/run.sh` to create and run a Nexus3 container.
+If you want to change the default port/volume mappings, just edit `docker/run.sh` before running the container.
 
 ## Contributing
+
 [![GitHub contributors](https://img.shields.io/github/contributors/flytreeleft/nexus3-keycloak-plugin.svg)](https://github.com/flytreeleft/nexus3-keycloak-plugin/graphs/contributors)
 
 Thanks to all contributors who helped to get this up and running.
 
 ## Thanks
+
 * [nexus3-crowd-plugin](https://github.com/pingunaut/nexus3-crowd-plugin.git) by [@pingunaut](https://github.com/pingunaut)
 * [keycloak-authz-client](https://github.com/keycloak/keycloak/tree/master/authz/client)
