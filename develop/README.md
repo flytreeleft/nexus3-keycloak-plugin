@@ -6,7 +6,7 @@ How to develop for this plugin?
 
 ## Prepare keycloak.json
 
-First, you should start a new Docker container for Keycloak server.
+First, you should create a new Docker container to start a Keycloak server instance.
 
 ```bash
 # Change the owner of the mapped volume
@@ -32,11 +32,13 @@ At last, put the `keycloak.json` into the directory `develop`.
 
 ## Prepare the Nexus3 Docker image
 
+Execute the image building script:
+
 ```bash
 $ sudo bash ./develop/build.sh
 ```
 
-After the building, the image named as `nexus3-keycloak-dev:3.6.0-02` will be listed in the results of `sudo docker images`.
+After that, a Docker image which is named as `nexus3-keycloak-dev:3.6.0-02` will be shown in the list of `sudo docker images`.
 
 **Note**: The image is based on [cavemandaveman/nexus](https://github.com/cavemandaveman/nexus) which is running Nexus v3.6.0-02.
 
@@ -53,24 +55,26 @@ $ sudo bash ./develop/run.sh
 ```
 
 **Note**:
-- This script will create a container named as `nexus3-keycloak-dev` and map the Nexus3 web port to the local port `8903`.
+- This script will create a container which is named as `nexus3-keycloak-dev` and will map the Nexus3 web port to the local port `8903`.
 - The Nexus3 data will be saved into `./develop/data/nexus3` to prevent to lose the configurations after re-creating the container.
 
 ## Check if the plugin works as expected
 
 > Everything is ready, just enjoy your development journey! :)
 
-Access `http://localhost:8903` in your browser, and login with username `admin` and password `admin123` to configure your Nexus3.
+Access `http://localhost:8903` in your browser, and login with username `admin` and password `admin123`
+to [configure](https://github.com/flytreeleft/nexus3-keycloak-plugin#usage) your Nexus3.
 
-If you want to check the logs of Nexus3, just running the following command:
+If you want to check the logs of the Nexus3 server, just running the following command:
 
 ```bash
 $ sudo docker logs --tail 500 nexus3-keycloak-dev
 ```
 
-This will print the latest `500` log lines in the console.
+This will print the latest `500` log lines into the console.
 
-And if you updated the plugin, just rebuild this plugin (`mvn clean install -Dmaven.test.skip=true`), then restart the Nexus3 Docker container:
+And if you updated this plugin, just [rebuild](#build-this-plugin) it,
+then you just only need to restart the Nexus3 container like this:
 
 ```bash
 $ sudo docker restart nexus3-keycloak-dev
