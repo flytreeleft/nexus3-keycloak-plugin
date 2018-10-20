@@ -12,7 +12,7 @@ If you are using the version 0.2.x of this plugin, and want to upgrade the plugi
 you should create some new roles in Nexus3, becuase the new version of the plugin supports to
 map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak to the Nexus3 roles.
 
-But don't worry about your data or the existing role mappings, they will still work well.
+But don't worry about your data or the existing role-mappings, they will still work well.
 The latest version of the plugin is compatible with the old version.
 In the new version, the original Keycloak role/group name will be prepended with
 `RealmRole:` (If it's a Realm-Role), `ClientRole:` (If it's a Client-Role) or `RealmGroup:` (If it's a Realm-Group).
