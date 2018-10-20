@@ -17,9 +17,6 @@ The latest version of the plugin is compatible with the old version.
 In the new version, the original Keycloak role/group name will be prepended with
 `RealmRole:` (If it's a Realm-Role), `ClientRole:` (If it's a Client-Role) or `RealmGroup:` (If it's a Realm-Group).
 
-> Note: The non-prefixed roles are all the Client-Roles, and you'd better not map them to the Nexus3 roles again,
-> they will not be shown again in the release version.
-
 If something goes wrong when you upgraded the plugin to the new version.
 **DO NOT** save or update your configurations again, just go back to the old version and restart Nexus3,
 then [create](https://github.com/flytreeleft/nexus3-keycloak-plugin/issues/new) an issue to report your problem.
