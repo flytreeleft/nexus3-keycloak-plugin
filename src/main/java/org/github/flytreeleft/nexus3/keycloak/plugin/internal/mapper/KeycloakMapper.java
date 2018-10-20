@@ -81,6 +81,19 @@ public class KeycloakMapper {
     }
 
     public static Set<Role> toRoles(List<?>... lists) {
+        return toRoles(lists, false);
+    }
+
+    public static Set<String> toRoleIds(List<?>... lists) {
+        return toRoleIds(lists, false);
+    }
+
+    /** Just for compatibility */
+    public static Set<String> toCompatibleRoleIds(List<?>... lists) {
+        return toRoleIds(lists, true);
+    }
+
+    private static Set<Role> toRoles(List<?>[] lists, boolean forCompatible) {
         Set<Role> roles = new LinkedHashSet<>();
 
         for (List<?> list : lists) {
@@ -90,8 +103,7 @@ public class KeycloakMapper {
 
             for (Object representation : list) {
                 if (representation instanceof RoleRepresentation) {
-                    // Just for compatible
-                    if (((RoleRepresentation) representation).getClientRole()) {
+                    if (forCompatible && ((RoleRepresentation) representation).getClientRole()) {
                         roles.add(toCompatibleRole((RoleRepresentation) representation));
                     }
 
@@ -104,15 +116,13 @@ public class KeycloakMapper {
         return roles;
     }
 
-    public static Set<String> toRoleIds(List<?>... lists) {
+    private static Set<String> toRoleIds(List<?>[] lists, boolean forCompatible) {
         Set<String> roleIds = new LinkedHashSet<>();
-        roleIds.addAll(toRoles(lists).stream().map(Role::getRoleId).collect(Collectors.toList()));
+        roleIds.addAll(toRoles(lists, forCompatible).stream().map(Role::getRoleId).collect(Collectors.toList()));
 
         return roleIds;
     }
 
-    /** @deprecated Will be removed at the next release version */
-    @Deprecated
     private static Role toCompatibleRole(RoleRepresentation representation) {
         Role role = new Role();
 

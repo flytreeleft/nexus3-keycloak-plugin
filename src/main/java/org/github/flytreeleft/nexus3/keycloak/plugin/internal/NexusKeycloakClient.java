@@ -46,7 +46,8 @@ public class NexusKeycloakClient {
         List<RoleRepresentation> realmRoles = getKeycloakAdminClient().getRealmRolesOfUser(user);
         List<GroupRepresentation> realmGroups = getKeycloakAdminClient().getRealmGroupsOfUser(user);
 
-        return KeycloakMapper.toRoleIds(clientRoles, realmRoles, realmGroups);
+        // Convert to compatible roles to make sure the existing role-mappings are still working
+        return KeycloakMapper.toCompatibleRoleIds(clientRoles, realmRoles, realmGroups);
     }
 
     public User findUserByUserId(String userId) {
