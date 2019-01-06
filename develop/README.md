@@ -24,6 +24,11 @@ $ sudo docker run -d --name keycloak-dev \
                 jboss/keycloak:4.5.0.Final
 ```
 
+Or just run the script:
+```bash
+$ sudo bash ./develop/run-keycloak.sh
+```
+
 Then, login with username `admin` and password `admin123`
 to [Configure Keycloak realm client](https://github.com/flytreeleft/nexus3-keycloak-plugin#4-configure-keycloak-realm-client)
 and [Create keycloak.json](https://github.com/flytreeleft/nexus3-keycloak-plugin#5-create-keycloakjson).
@@ -35,7 +40,7 @@ At last, put the `keycloak.json` into the directory `develop`.
 Execute the image building script:
 
 ```bash
-$ sudo bash ./develop/build.sh
+$ sudo bash ./develop/build-nexus3.sh
 ```
 
 After that, a Docker image which is named as `nexus3-keycloak-dev:3.6.0-02` will be shown in the list of `sudo docker images`.
@@ -51,7 +56,7 @@ $ mvn clean install -Dmaven.test.skip=true
 ## Startup the Nexus3 Docker container
 
 ```bash
-$ sudo bash ./develop/run.sh
+$ sudo bash ./develop/run-nexus3.sh
 ```
 
 **Note**:
