@@ -6,7 +6,7 @@ DCR_IMAGE_NAME=jboss/keycloak
 DCR_IMAGE_VERSION=4.5.0.Final
 DCR_IMAGE="${DCR_IMAGE_NAME}:${DCR_IMAGE_VERSION}"
 
-DCR_DATA_VOLUME="${DIR}/develop/data/keycloak"
+DCR_DATA_VOLUME="${DIR}/data/keycloak"
 
 echo "Remove the existing docker container - ${DCR_NAME}"
 docker rm -f ${DCR_NAME}
