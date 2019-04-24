@@ -183,6 +183,10 @@ After the image has been built, you should [prepare](#5-create-keycloakjson) you
 and put it into the directory `docker/`, then execute command `bash docker/run.sh` to create and run a Nexus3 container.
 If you want to change the default port/volume mappings, just edit `docker/run.sh` before running the container.
 
+## License
+
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+
 ## Contributing
 
 [![GitHub contributors](https://img.shields.io/github/contributors/flytreeleft/nexus3-keycloak-plugin.svg)](https://github.com/flytreeleft/nexus3-keycloak-plugin/graphs/contributors)
