@@ -29,7 +29,9 @@ docker run -d --name ${DCR_NAME} \
                 --restart always \
                 -e NEXUS_CONTEXT="/" \
                 -v "${DCR_DATA_VOLUME}":/nexus-data \
+                -v "${DIR}/keycloak-plugin.properties":${NEXUS_HOME}/etc/keycloak-plugin.properties:ro \
                 -v "${DIR}/keycloak.json":${NEXUS_HOME}/etc/keycloak.json:ro \
+                -v "${DIR}/keycloak.test.json":${NEXUS_HOME}/etc/keycloak.test.json:ro \
                 -v "${PLUGIN_JAR}":"${NEXUS_HOME}/system/org/github/flytreeleft/nexus3-keycloak-plugin/${PLUGIN_VERSION}/nexus3-keycloak-plugin-${PLUGIN_VERSION}.jar":ro \
                 -p 172.17.0.1:8903:8081 \
                 ${DCR_IMAGE}

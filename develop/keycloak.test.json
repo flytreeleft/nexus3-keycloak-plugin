@@ -1,0 +1,10 @@
+{
+  "realm": "test",
+  "auth-server-url": "http://172.17.0.1:8086/auth",
+  "ssl-required": "external",
+  "resource": "nexus3",
+  "credentials": {
+    "secret": "f5e314e8-6081-4ecb-85de-f4e9ff374bc8"
+  },
+  "confidential-port": 0
+}
