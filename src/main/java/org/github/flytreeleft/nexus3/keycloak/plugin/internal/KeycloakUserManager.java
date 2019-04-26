@@ -18,7 +18,6 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import com.google.inject.Inject;
 import org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +37,9 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
 
     private NexusKeycloakClient client;
 
-    @Inject
-    public KeycloakUserManager(NexusKeycloakClient client) {
+    public KeycloakUserManager() {
         LOGGER.info("KeycloakUserManager is starting...");
-        this.client = client;
+        this.client = NexusKeycloakClientLoader.loadClient();
     }
 
     @Override

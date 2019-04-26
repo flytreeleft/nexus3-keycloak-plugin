@@ -43,14 +43,15 @@ public class KeycloakMapper {
         return users;
     }
 
-    public static Role toRole(RoleRepresentation representation) {
+    public static Role toRole(String realm, RoleRepresentation representation) {
         if (representation == null) {
             return null;
         }
 
         Role role = new Role();
         String prefix = representation.getClientRole() ? CLIENT_ROLE_PREFIX : REALM_ROLE_PREFIX;
-        String roleName = String.format("%s:%s", prefix, representation.getName());
+        // <RoleType>[:<Realm>]:<RoleName>
+        String roleName = String.format("%s%s:%s", prefix, realm != null ? ":" + realm : "", representation.getName());
 
         // Use role name as role-id and role-name of Nexus3
         role.setRoleId(roleName);
@@ -64,13 +65,17 @@ public class KeycloakMapper {
         return role;
     }
 
-    public static Role toRole(GroupRepresentation representation) {
+    public static Role toRole(String realm, GroupRepresentation representation) {
         if (representation == null) {
             return null;
         }
 
         Role role = new Role();
-        String roleName = String.format("%s:%s", REALM_GROUP_PREFIX, representation.getPath());
+        // <RoleType>[:<Realm>]:<GroupPath>
+        String roleName = String.format("%s%s:%s",
+                                        REALM_GROUP_PREFIX,
+                                        realm != null ? ":" + realm : "",
+                                        representation.getPath());
 
         role.setRoleId(roleName);
         role.setName(roleName);
@@ -80,20 +85,20 @@ public class KeycloakMapper {
         return role;
     }
 
-    public static Set<Role> toRoles(List<?>... lists) {
-        return toRoles(lists, false);
+    public static Set<Role> toRoles(String realm, List<?>... lists) {
+        return toRoles(realm, lists, false);
     }
 
-    public static Set<String> toRoleIds(List<?>... lists) {
-        return toRoleIds(lists, false);
+    public static Set<String> toRoleIds(String realm, List<?>... lists) {
+        return toRoleIds(realm, lists, false);
     }
 
     /** Just for compatibility */
-    public static Set<String> toCompatibleRoleIds(List<?>... lists) {
-        return toRoleIds(lists, true);
+    public static Set<String> toCompatibleRoleIds(String realm, List<?>... lists) {
+        return toRoleIds(realm, lists, true);
     }
 
-    private static Set<Role> toRoles(List<?>[] lists, boolean forCompatible) {
+    private static Set<Role> toRoles(String realm, List<?>[] lists, boolean forCompatible) {
         Set<Role> roles = new LinkedHashSet<>();
 
         for (List<?> list : lists) {
@@ -107,18 +112,18 @@ public class KeycloakMapper {
                         roles.add(toCompatibleRole((RoleRepresentation) representation));
                     }
 
-                    roles.add(toRole((RoleRepresentation) representation));
+                    roles.add(toRole(realm, (RoleRepresentation) representation));
                 } else if (representation instanceof GroupRepresentation) {
-                    roles.add(toRole((GroupRepresentation) representation));
+                    roles.add(toRole(realm, (GroupRepresentation) representation));
                 }
             }
         }
         return roles;
     }
 
-    private static Set<String> toRoleIds(List<?>[] lists, boolean forCompatible) {
+    private static Set<String> toRoleIds(String realm, List<?>[] lists, boolean forCompatible) {
         Set<String> roleIds = new LinkedHashSet<>();
-        roleIds.addAll(toRoles(lists, forCompatible).stream().map(Role::getRoleId).collect(Collectors.toList()));
+        roleIds.addAll(toRoles(realm, lists, forCompatible).stream().map(Role::getRoleId).collect(Collectors.toList()));
 
         return roleIds;
     }

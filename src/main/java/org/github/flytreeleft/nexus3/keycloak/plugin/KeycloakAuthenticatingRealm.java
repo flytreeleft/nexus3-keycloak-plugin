@@ -12,6 +12,9 @@
  */
 package org.github.flytreeleft.nexus3.keycloak.plugin;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -24,12 +27,9 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.eclipse.sisu.Description;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.NexusKeycloakClient;
+import org.github.flytreeleft.nexus3.keycloak.plugin.internal.NexusKeycloakClientLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 @Singleton
 @Named
@@ -40,9 +40,8 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
 
     private NexusKeycloakClient client;
 
-    @Inject
-    public KeycloakAuthenticatingRealm(final NexusKeycloakClient client) {
-        this.client = client;
+    public KeycloakAuthenticatingRealm() {
+        this.client = NexusKeycloakClientLoader.loadClient();
     }
 
     @Override
