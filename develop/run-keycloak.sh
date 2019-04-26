@@ -25,5 +25,5 @@ docker run -d --name ${DCR_NAME} \
                 -e KEYCLOAK_USER=admin \
                 -e KEYCLOAK_PASSWORD=admin123 \
                 -v "${DCR_DATA_VOLUME}":/opt/jboss/keycloak/standalone/data \
-                -p 8086:8080 \
+                -p 172.17.0.1:8086:8080 \
                 ${DCR_IMAGE}
