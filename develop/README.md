@@ -20,7 +20,7 @@ $ sudo docker run -d --name keycloak-dev \
                 -e KEYCLOAK_USER=admin \
                 -e KEYCLOAK_PASSWORD=admin123 \
                 -v "$(pwd)/develop/data/keycloak":/opt/jboss/keycloak/standalone/data \
-                -p 8086:8080 \
+                -p 172.17.0.1:8086:8080 \
                 jboss/keycloak:4.5.0.Final
 ```
 
@@ -29,9 +29,11 @@ Or just run the script:
 $ sudo bash ./develop/run-keycloak.sh
 ```
 
-Then, login with username `admin` and password `admin123`
+Then, access `http://172.17.0.1:8086` and login with username `admin` and password `admin123`
 to [Configure Keycloak realm client](https://github.com/flytreeleft/nexus3-keycloak-plugin#4-configure-keycloak-realm-client)
 and [Create keycloak.json](https://github.com/flytreeleft/nexus3-keycloak-plugin#5-create-keycloakjson).
+
+> Bind port to `172.17.0.1` to make sure that Nexus3 and Keycloak can access each other.
 
 At last, put the `keycloak.json` into the directory `develop`.
 
@@ -67,7 +69,7 @@ $ sudo bash ./develop/run-nexus3.sh
 
 > Everything is ready, just enjoy your development journey! :)
 
-Access `http://localhost:8903` in your browser, and login with username `admin` and password `admin123`
+Access `http://172.17.0.1:8903` in your browser, and login with username `admin` and password `admin123`
 to [configure](https://github.com/flytreeleft/nexus3-keycloak-plugin#usage) your Nexus3.
 
 If you want to check the logs of the Nexus3 server, just running the following command:
