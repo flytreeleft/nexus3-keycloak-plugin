@@ -12,6 +12,12 @@
  */
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 
+import java.util.Collections;
+import java.util.Set;
+import javax.enterprise.inject.Typed;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.security.authz.AbstractReadOnlyAuthorizationManager;
@@ -21,25 +27,26 @@ import org.sonatype.nexus.security.privilege.Privilege;
 import org.sonatype.nexus.security.role.NoSuchRoleException;
 import org.sonatype.nexus.security.role.Role;
 
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.Set;
-
 @Singleton
-@Typed(AuthorizationManager.class)
 @Named("Keycloak")
+@Typed(AuthorizationManager.class)
 public class KeycloakAuthorizationManager extends AbstractReadOnlyAuthorizationManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakAuthorizationManager.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private NexusKeycloakClient client;
 
-    @Inject
+    public KeycloakAuthorizationManager() {
+        this(NexusKeycloakClientLoader.loadDefaultClient());
+    }
+
     public KeycloakAuthorizationManager(NexusKeycloakClient client) {
-        LOGGER.info("KeycloakAuthorizationManager is starting...");
+        this.logger.info(getClass().getName() + " is starting...");
         this.client = client;
+    }
+
+    @Override
+    public String getSource() {
+        return this.client.getSource();
     }
 
     @Override
@@ -55,11 +62,6 @@ public class KeycloakAuthorizationManager extends AbstractReadOnlyAuthorizationM
         } else {
             return role;
         }
-    }
-
-    @Override
-    public String getSource() {
-        return KeycloakUserManager.SOURCE;
     }
 
     @Override

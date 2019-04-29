@@ -18,7 +18,6 @@ import javax.enterprise.inject.Typed;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import com.google.inject.Inject;
 import org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +29,19 @@ import org.sonatype.nexus.security.user.UserNotFoundException;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
 
 @Singleton
-@Typed(UserManager.class)
 @Named("Keycloak")
+@Typed(UserManager.class)
 public class KeycloakUserManager extends AbstractReadOnlyUserManager {
-    public static final String SOURCE = "Keycloak";
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakUserManager.class);
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private NexusKeycloakClient client;
 
-    @Inject
+    public KeycloakUserManager() {
+        this(NexusKeycloakClientLoader.loadDefaultClient());
+    }
+
     public KeycloakUserManager(NexusKeycloakClient client) {
-        LOGGER.info("KeycloakUserManager is starting...");
+        this.logger.info(getClass().getName() + " is starting...");
         this.client = client;
     }
 
@@ -51,7 +52,7 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
 
     @Override
     public String getSource() {
-        return SOURCE;
+        return this.client.getSource();
     }
 
     @Override
@@ -81,10 +82,10 @@ public class KeycloakUserManager extends AbstractReadOnlyUserManager {
     }
 
     private User completeUserRolesAndSource(User user) {
-        user.setSource(SOURCE);
+        user.setSource(getSource());
 
         Set<String> roles = this.client.findRoleIdsByUserId(user.getUserId());
-        user.setRoles(roles.stream().map(role -> new RoleIdentifier(SOURCE, role)).collect(Collectors.toSet()));
+        user.setRoles(roles.stream().map(role -> new RoleIdentifier(getSource(), role)).collect(Collectors.toSet()));
         return user;
     }
 }

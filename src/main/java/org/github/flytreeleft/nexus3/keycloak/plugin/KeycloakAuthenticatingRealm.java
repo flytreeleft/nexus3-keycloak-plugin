@@ -12,6 +12,9 @@
  */
 package org.github.flytreeleft.nexus3.keycloak.plugin;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -24,24 +27,25 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.eclipse.sisu.Description;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.NexusKeycloakClient;
+import org.github.flytreeleft.nexus3.keycloak.plugin.internal.NexusKeycloakClientLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.inject.Singleton;
 
 @Singleton
 @Named
 @Description("Keycloak Authentication Realm")
 public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
     public static final String NAME = KeycloakAuthenticatingRealm.class.getName();
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakAuthenticatingRealm.class);
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private NexusKeycloakClient client;
 
-    @Inject
-    public KeycloakAuthenticatingRealm(final NexusKeycloakClient client) {
+    public KeycloakAuthenticatingRealm() {
+        this(NexusKeycloakClientLoader.loadDefaultClient());
+    }
+
+    public KeycloakAuthenticatingRealm(NexusKeycloakClient client) {
         this.client = client;
     }
 
@@ -53,13 +57,13 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
     @Override
     protected void onInit() {
         super.onInit();
-        LOGGER.info("Keycloak Realm initialized...");
+        this.logger.info(String.format("Keycloak Realm %s initialized...", getClass().getName()));
     }
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         String username = (String) principals.getPrimaryPrincipal();
-//        LOGGER.info("doGetAuthorizationInfo for " + username);
+//        this.logger.info("doGetAuthorizationInfo for " + username);
         return new SimpleAuthorizationInfo(this.client.findRoleIdsByUserId(username));
     }
 
@@ -74,7 +78,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
         UsernamePasswordToken t = (UsernamePasswordToken) token;
 
         boolean authenticated = this.client.authenticate(t);
-//        LOGGER.info("doGetAuthenticationInfo for " + t.getUsername() + ": " + authenticated);
+//        this.logger.info("doGetAuthenticationInfo for " + t.getUsername() + ": " + authenticated);
 
         if (authenticated) {
             return createSimpleAuthInfo(t);
@@ -91,6 +95,6 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
      * @return the simple authentication info
      */
     private SimpleAuthenticationInfo createSimpleAuthInfo(UsernamePasswordToken token) {
-        return new SimpleAuthenticationInfo(token.getPrincipal(), token.getCredentials(), NAME);
+        return new SimpleAuthenticationInfo(token.getPrincipal(), token.getCredentials(), getName());
     }
 }

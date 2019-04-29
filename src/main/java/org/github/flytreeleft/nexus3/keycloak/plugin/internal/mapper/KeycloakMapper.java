@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.github.flytreeleft.nexus3.keycloak.plugin.internal.KeycloakUserManager;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -18,7 +17,7 @@ public class KeycloakMapper {
     public static final String REALM_ROLE_PREFIX = "RealmRole";
     public static final String REALM_GROUP_PREFIX = "RealmGroup";
 
-    public static User toUser(UserRepresentation representation) {
+    public static User toUser(String source, UserRepresentation representation) {
         if (representation == null) {
             return null;
         }
@@ -30,20 +29,20 @@ public class KeycloakMapper {
         user.setEmailAddress(representation.getEmail());
         user.setReadOnly(true);
         user.setStatus(representation.isEnabled() ? UserStatus.active : UserStatus.disabled);
-        user.setSource(KeycloakUserManager.SOURCE);
+        user.setSource(source);
         return user;
     }
 
-    public static Set<User> toUsers(List<UserRepresentation> representations) {
+    public static Set<User> toUsers(String source, List<UserRepresentation> representations) {
         Set<User> users = new LinkedHashSet<>();
 
         if (representations != null) {
-            users.addAll(representations.stream().map(KeycloakMapper::toUser).collect(Collectors.toList()));
+            users.addAll(representations.stream().map(u -> toUser(source, u)).collect(Collectors.toList()));
         }
         return users;
     }
 
-    public static Role toRole(RoleRepresentation representation) {
+    public static Role toRole(String source, RoleRepresentation representation) {
         if (representation == null) {
             return null;
         }
@@ -59,12 +58,12 @@ public class KeycloakMapper {
             role.setDescription(String.format("%s: %s", prefix, representation.getDescription()));
         }
         role.setReadOnly(true);
-        role.setSource(KeycloakUserManager.SOURCE);
+        role.setSource(source);
 
         return role;
     }
 
-    public static Role toRole(GroupRepresentation representation) {
+    public static Role toRole(String source, GroupRepresentation representation) {
         if (representation == null) {
             return null;
         }
@@ -75,13 +74,13 @@ public class KeycloakMapper {
         role.setRoleId(roleName);
         role.setName(roleName);
         role.setReadOnly(true);
-        role.setSource(KeycloakUserManager.SOURCE);
+        role.setSource(source);
 
         return role;
     }
 
-    public static Set<Role> toRoles(List<?>... lists) {
-        return toRoles(lists, false);
+    public static Set<Role> toRoles(String source, List<?>... lists) {
+        return toRoles(source, lists, false);
     }
 
     public static Set<String> toRoleIds(List<?>... lists) {
@@ -93,7 +92,7 @@ public class KeycloakMapper {
         return toRoleIds(lists, true);
     }
 
-    private static Set<Role> toRoles(List<?>[] lists, boolean forCompatible) {
+    private static Set<Role> toRoles(String source, List<?>[] lists, boolean forCompatible) {
         Set<Role> roles = new LinkedHashSet<>();
 
         for (List<?> list : lists) {
@@ -104,12 +103,12 @@ public class KeycloakMapper {
             for (Object representation : list) {
                 if (representation instanceof RoleRepresentation) {
                     if (forCompatible && ((RoleRepresentation) representation).getClientRole()) {
-                        roles.add(toCompatibleRole((RoleRepresentation) representation));
+                        roles.add(toCompatibleRole(source, (RoleRepresentation) representation));
                     }
 
-                    roles.add(toRole((RoleRepresentation) representation));
+                    roles.add(toRole(source, (RoleRepresentation) representation));
                 } else if (representation instanceof GroupRepresentation) {
-                    roles.add(toRole((GroupRepresentation) representation));
+                    roles.add(toRole(source, (GroupRepresentation) representation));
                 }
             }
         }
@@ -118,19 +117,19 @@ public class KeycloakMapper {
 
     private static Set<String> toRoleIds(List<?>[] lists, boolean forCompatible) {
         Set<String> roleIds = new LinkedHashSet<>();
-        roleIds.addAll(toRoles(lists, forCompatible).stream().map(Role::getRoleId).collect(Collectors.toList()));
+        roleIds.addAll(toRoles(null, lists, forCompatible).stream().map(Role::getRoleId).collect(Collectors.toList()));
 
         return roleIds;
     }
 
-    private static Role toCompatibleRole(RoleRepresentation representation) {
+    private static Role toCompatibleRole(String source, RoleRepresentation representation) {
         Role role = new Role();
 
         role.setRoleId(representation.getName());
         role.setName(representation.getName());
         role.setDescription(representation.getDescription());
         role.setReadOnly(true);
-        role.setSource(KeycloakUserManager.SOURCE);
+        role.setSource(source);
         return role;
     }
 }
