@@ -35,7 +35,10 @@ and [Create keycloak.json](https://github.com/flytreeleft/nexus3-keycloak-plugin
 
 > Bind port to `172.17.0.1` to make sure that Nexus3 and Keycloak can access each other.
 
-At last, put the `keycloak.json` into the directory `develop`.
+At last, put the `keycloak.json` into the directory `develop`, or overwrite the existing one.
+
+**Note**: If you want to test multiple Keycloak realms, just export the `keycloak.json` and rename it as `keycloak.{index}.json`,
+the `{index}` can be `0`, `1` or `2`.
 
 ## Prepare the Nexus3 Docker image
 
