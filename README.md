@@ -6,6 +6,11 @@ authenticate with Keycloak Realm Users and authorize with Keycloak realm/client 
 
 It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
+## Features
+
+- Supports to map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak.
+- Supports to map multiple Keycloak realms.
+
 ## Warning
 
 If you are using the version 0.2.x of this plugin, and want to upgrade the plugin to 0.3.x,
@@ -72,7 +77,7 @@ done
 
 Append the following line to *startup.properties* file found in `$install_dir/etc/karaf`.
 
-Please replace [PLUGIN_VERSION] by the current plugin version.
+Please replace `[PLUGIN_VERSION]` by the current plugin version.
 ```
 mvn\:org.github.flytreeleft/nexus3-keycloak-plugin/[PLUGIN_VERSION] = 200
 ```
@@ -94,7 +99,7 @@ click `Save` button to make configuration effective.
 ![](./docs/images/enable-service-accounts.png)
 
 Then Activate the `Service Account Roles` tab, choose `realm-management` for `Client Roles`,
-then select `view-clients` and `view-users` in `Available Roles`,
+then select `view-realm`, `view-clients` and `view-users` in `Available Roles`,
 click `Add selected` button to add them to `Assigned Roles`.
 
 ![](./docs/images/choose-service-account-roles.png)
@@ -172,6 +177,19 @@ Within the console just type
 ```
 bundle:install -s file://[ABSOLUTE_PATH_TO_YOUR_JAR]
 ```
+
+## Multiple Keycloak Realms
+
+From the version 0.3.3, the plugin supports multiple Keycloak realms. You can map at least 4 different Keycloak realms' roles/groups to Nexus3.
+
+If you want to enable this feature, just export the `Keycloak OIDC JSON` from the Keycloak realm to the file `$install_dir/etc/keycloak.{index}.json`,
+and the `{index}` is a number which can be `0`, `1` or `2`.
+
+Then, enable the corresponding Keycloak authentication realm in Nexus3:
+
+![](./docs/images/enable-multi-keycloak-auth-realm.png)
+
+Finally, you just need to map the new realm roles/groups to Nexus3 as the default one.
 
 ## Docker
 
