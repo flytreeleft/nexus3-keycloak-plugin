@@ -13,6 +13,12 @@ DCR_DATA_VOLUME="${DIR}/data/nexus3"
 PLUGIN_VERSION=x.y.z-dev
 PLUGIN_JAR="$(ls "${DIR}/../target/nexus3-keycloak-plugin"-*-SNAPSHOT.jar)"
 
+keycloak_json_mappings=""
+for file in `ls "${DIR}"/keycloak*.json`; do
+    name=$(basename "${file}")
+    keycloak_json_mappings="${keycloak_json_mappings} -v ${file}:${NEXUS_HOME}/etc/${name}:ro"
+done
+
 echo "Remove the existing docker container - ${DCR_NAME}"
 docker rm -f ${DCR_NAME}
 
@@ -29,8 +35,7 @@ docker run -d --name ${DCR_NAME} \
                 --restart always \
                 -e NEXUS_CONTEXT="/" \
                 -v "${DCR_DATA_VOLUME}":/nexus-data \
-                -v "${DIR}/keycloak.json":${NEXUS_HOME}/etc/keycloak.json:ro \
-                -v "${DIR}/keycloak.0.json":${NEXUS_HOME}/etc/keycloak.0.json:ro \
+                ${keycloak_json_mappings} \
                 -v "${PLUGIN_JAR}":"${NEXUS_HOME}/system/org/github/flytreeleft/nexus3-keycloak-plugin/${PLUGIN_VERSION}/nexus3-keycloak-plugin-${PLUGIN_VERSION}.jar":ro \
                 -p 172.17.0.1:8903:8081 \
                 ${DCR_IMAGE}
