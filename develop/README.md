@@ -16,7 +16,9 @@ $ sudo docker run --rm \
                 --entrypoint /bin/chown \
                 -it jboss/keycloak:4.5.0.Final \
                 -R jboss /mnt
+
 $ sudo docker run -d --name keycloak-dev \
+                -e KEYCLOAK_LOGLEVEL=DEBUG \
                 -e KEYCLOAK_USER=admin \
                 -e KEYCLOAK_PASSWORD=admin123 \
                 -v "$(pwd)/develop/data/keycloak":/opt/jboss/keycloak/standalone/data \
@@ -25,6 +27,7 @@ $ sudo docker run -d --name keycloak-dev \
 ```
 
 Or just run the script:
+
 ```bash
 $ sudo bash ./develop/run-keycloak.sh
 ```
@@ -78,10 +81,12 @@ to [configure](https://github.com/flytreeleft/nexus3-keycloak-plugin#usage) your
 If you want to check the logs of the Nexus3 server, just running the following command:
 
 ```bash
+# Print the latest 500 lines
 $ sudo docker logs --tail 500 nexus3-keycloak-dev
-```
 
-This will print the latest `500` log lines into the console.
+# Print the log to file
+$ sudo docker logs nexus3-keycloak-dev >& nexus3.log
+```
 
 And if you updated this plugin, just [rebuild](#build-this-plugin) it,
 then you just only need to restart the Nexus3 container like this:
@@ -89,3 +94,37 @@ then you just only need to restart the Nexus3 container like this:
 ```bash
 $ sudo docker restart nexus3-keycloak-dev
 ```
+
+## Single Sign On (SSO) supports via Nginx gateway
+
+If you want to use or test the SSO feature, you should build the Nginx gateway first:
+
+```bash
+$ sudo bash ./develop/run-nginx.sh
+```
+
+Then you can access `http://172.17.0.1` in your browser, it will redirect to the Keycloak login page like
+`http://172.17.0.1:8086/auth/realms/master/protocol/openid-connect/auth?scope=xxx&client_id=xxx&state=xxx&nonce=xxx&redirect_uri=http%3A%2F%2F172.17.0.1%2Fredirect_uri&response_type=code`.
+When you login successfully, it will go back to `http://172.17.0.1`, and you already login Nexus3 too.
+
+With the Nginx gateway configuration, you can be authenticated with HTTP basic authentication also, check it through:
+
+```bash
+# Administration priviledges checking
+$ auth_basic=$(echo -n "nexus3:nexus321" | base64); \
+  curl -H "Authorization: BASIC $auth_basic" \
+       -H "Content-Type: application/json" \
+       -d '{"action":"coreui_User","method":"readSources","data":null,"type":"rpc","tid":9}' \
+       -v -4 \
+       "http://172.17.0.1/service/extdirect"
+
+# User state checking
+$ auth_basic=$(echo -n "nexus3:nexus321" | base64); \
+  curl -H "Authorization: BASIC $auth_basic" \
+       -H "Content-Type: application/json" \
+       -v -4 \
+       "http://172.17.0.1/service/extdirect/poll/rapture_State_get"
+```
+
+**Note**:
+- Then Nginx gateway Docker image is built on [flytreeleft/docker-nginx-gateway](https://github.com/flytreeleft/docker-nginx-gateway).
