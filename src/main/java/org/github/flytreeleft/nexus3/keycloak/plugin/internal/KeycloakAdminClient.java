@@ -19,6 +19,7 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.constants.ServiceUrlConstants;
 import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.representations.UserInfo;
 import org.keycloak.representations.adapters.config.AdapterConfig;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -76,6 +77,15 @@ public class KeycloakAdminClient {
         }
 
         return httpMethod.response().json(AccessTokenResponse.class).execute();
+    }
+
+    public UserInfo obtainUserInfo(String accessToken) {
+        HttpMethod<UserInfo> httpMethod = getHttp().get("/realms/%s/protocol/openid-connect/userinfo",
+                                                        this.config.getRealm());
+
+        httpMethod.authorizationBearer(accessToken);
+
+        return httpMethod.response().json(UserInfo.class).execute();
     }
 
     public ClientRepresentation getRealmClient(String clientId) {

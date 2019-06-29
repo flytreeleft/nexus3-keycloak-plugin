@@ -20,12 +20,12 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.eclipse.sisu.Description;
+import org.github.flytreeleft.nexus3.keycloak.plugin.internal.KeycloakHttpHeaderAuthToken;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.NexusKeycloakClient;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.NexusKeycloakClientLoader;
 import org.slf4j.Logger;
@@ -47,6 +47,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
 
     public KeycloakAuthenticatingRealm(NexusKeycloakClient client) {
         this.client = client;
+        //setCredentialsMatcher((token, info) -> true);
     }
 
     @Override
@@ -58,6 +59,11 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
     protected void onInit() {
         super.onInit();
         this.logger.info(String.format("Keycloak Realm %s initialized...", getClass().getName()));
+    }
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        return (token instanceof UsernamePasswordToken) || (token instanceof KeycloakHttpHeaderAuthToken);
     }
 
     @Override
@@ -74,23 +80,21 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        if (!(token instanceof UsernamePasswordToken)) {
-            throw new UnsupportedTokenException(String.format("Token of type %s  is not supported. A %s is required.",
-                                                              token.getClass().getName(),
-                                                              UsernamePasswordToken.class.getName()));
-        }
-
         boolean authenticated = false;
-        UsernamePasswordToken t = (UsernamePasswordToken) token;
+
         try {
-            authenticated = this.client.authenticate(t);
-            this.logger.info("doGetAuthenticationInfo for " + t.getUsername() + ": " + authenticated);
+            authenticated = this.client.authenticate(token);
+
+            this.logger.info("doGetAuthenticationInfo for {} via {}: {}",
+                             token.getPrincipal(),
+                             token.getClass().getName(),
+                             authenticated);
         } catch (RuntimeException e) {
-            this.logger.info("doGetAuthenticationInfo failed: " + e.getMessage());
+            this.logger.info("doGetAuthenticationInfo failed: " + e.getMessage(), e);
         }
 
         if (authenticated) {
-            return createSimpleAuthInfo(t);
+            return createSimpleAuthInfo(token);
         } else {
             return null;
         }
@@ -103,7 +107,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
      *         the token
      * @return the simple authentication info
      */
-    private SimpleAuthenticationInfo createSimpleAuthInfo(UsernamePasswordToken token) {
+    private SimpleAuthenticationInfo createSimpleAuthInfo(AuthenticationToken token) {
         return new SimpleAuthenticationInfo(token.getPrincipal(), token.getCredentials(), getName());
     }
 }

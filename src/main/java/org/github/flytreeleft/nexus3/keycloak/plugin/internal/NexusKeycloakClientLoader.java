@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.sonatype.nexus.security.role.Role;
 import org.sonatype.nexus.security.user.User;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
@@ -57,7 +57,7 @@ public class NexusKeycloakClientLoader {
         }
 
         @Override
-        public boolean authenticate(UsernamePasswordToken token) {
+        public boolean authenticate(AuthenticationToken token) {
             return false;
         }
 

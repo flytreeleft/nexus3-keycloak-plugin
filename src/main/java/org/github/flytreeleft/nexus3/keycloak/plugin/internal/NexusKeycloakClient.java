@@ -7,10 +7,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.mapper.KeycloakMapper;
 import org.keycloak.representations.AccessTokenResponse;
+import org.keycloak.representations.UserInfo;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -21,7 +23,7 @@ import org.sonatype.nexus.security.user.User;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
 
 public class NexusKeycloakClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NexusKeycloakClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(NexusKeycloakClient.class);
 
     private String source;
     private File config;
@@ -42,11 +44,29 @@ public class NexusKeycloakClient {
         }
     }
 
+    public boolean authenticate(AuthenticationToken token) {
+        if (token instanceof UsernamePasswordToken) {
+            return authenticate((UsernamePasswordToken) token);
+        } else if (token instanceof KeycloakHttpHeaderAuthToken) {
+            return authenticate((KeycloakHttpHeaderAuthToken) token);
+        }
+        return false;
+    }
+
     public boolean authenticate(UsernamePasswordToken token) {
-        AccessTokenResponse accessTokenResponse = this.keycloakAdminClient.obtainAccessToken(token.getUsername(),
-                                                                                             new String(token.getPassword()));
+        String principal = token.getUsername();
+        String credentials = new String(token.getPassword());
+        AccessTokenResponse accessTokenResponse = this.keycloakAdminClient.obtainAccessToken(principal, credentials);
 
         return accessTokenResponse != null && StringUtils.hasText(accessTokenResponse.getToken());
+    }
+
+    public boolean authenticate(KeycloakHttpHeaderAuthToken token) {
+        String principal = token.getPrincipal();
+        String credentials = token.getCredentials().toString();
+        UserInfo userInfo = this.keycloakAdminClient.obtainUserInfo(credentials);
+
+        return userInfo != null && userInfo.getPreferredUsername().equals(principal);
     }
 
     public Set<String> findRoleIdsByUserId(String userId) {
