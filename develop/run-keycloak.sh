@@ -22,6 +22,7 @@ docker run --rm \
 echo "Create new docker container - ${DCR_NAME}"
 docker run -d --name ${DCR_NAME} \
                 --restart always \
+                -e KEYCLOAK_LOGLEVEL=DEBUG \
                 -e KEYCLOAK_USER=admin \
                 -e KEYCLOAK_PASSWORD=admin123 \
                 -v "${DCR_DATA_VOLUME}":/opt/jboss/keycloak/standalone/data \
