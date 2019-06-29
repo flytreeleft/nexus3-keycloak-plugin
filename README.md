@@ -10,7 +10,7 @@ It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
 - Supports to map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak.
 - Supports to map multiple Keycloak realms.
-- Supports Keycloak Single Sign On (SSO): sign-in and sing-out are all supported.
+- Supports Keycloak Single Sign On (SSO): sign-in and sign-out are all supported.
 
 ## Warning
 
