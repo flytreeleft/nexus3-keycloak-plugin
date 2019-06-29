@@ -2,14 +2,10 @@ package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.Http;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.HttpMethod;
+import org.keycloak.OAuth2Constants;
 import org.keycloak.common.util.Time;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.adapters.config.AdapterConfig;
-
-import static org.keycloak.OAuth2Constants.CLIENT_CREDENTIALS;
-import static org.keycloak.OAuth2Constants.CLIENT_ID;
-import static org.keycloak.OAuth2Constants.GRANT_TYPE;
-import static org.keycloak.OAuth2Constants.REFRESH_TOKEN;
 
 public class KeycloakTokenManager {
     private static final long DEFAULT_MIN_VALIDITY = 30;
@@ -24,11 +20,14 @@ public class KeycloakTokenManager {
     public KeycloakTokenManager(AdapterConfig config, Http http) {
         this.config = config;
         this.http = http;
-        this.grantType = CLIENT_CREDENTIALS;
+        this.grantType = OAuth2Constants.CLIENT_CREDENTIALS;
 
         if (config.isPublicClient()) {
-            throw new IllegalArgumentException(
-                    "Can't use " + GRANT_TYPE + "=" + CLIENT_CREDENTIALS + " with public client");
+            throw new IllegalArgumentException("Can't use " +
+                                               OAuth2Constants.GRANT_TYPE +
+                                               "=" +
+                                               OAuth2Constants.CLIENT_CREDENTIALS +
+                                               " with public client");
         }
     }
 
@@ -52,29 +51,14 @@ public class KeycloakTokenManager {
     }
 
     public AccessTokenResponse refreshToken() {
-        HttpMethod<AccessTokenResponse> httpMethod = tokenRequest(REFRESH_TOKEN);
-        httpMethod.param(REFRESH_TOKEN, currentToken.getRefreshToken());
+        HttpMethod<AccessTokenResponse> httpMethod = tokenRequest(OAuth2Constants.REFRESH_TOKEN);
+        httpMethod.param(OAuth2Constants.REFRESH_TOKEN, currentToken.getRefreshToken());
 
         try {
             return updateToken(httpMethod);
         } catch (Exception e) {
             return grantToken();
         }
-    }
-
-    private HttpMethod<AccessTokenResponse> tokenRequest(String grantType) {
-        String path = "/realms/%s/protocol/openid-connect/token";
-        HttpMethod<AccessTokenResponse> httpMethod = this.http.post(path, this.config.getRealm());
-        httpMethod.param(GRANT_TYPE, grantType);
-
-        if (this.config.isPublicClient()) {
-            httpMethod.param(CLIENT_ID, this.config.getResource());
-        } else {
-            httpMethod.authorizationBasic(this.config.getResource(),
-                                          this.config.getCredentials().get("secret").toString());
-        }
-
-        return httpMethod;
     }
 
     private AccessTokenResponse updateToken(HttpMethod<AccessTokenResponse> httpMethod) {
@@ -85,6 +69,21 @@ public class KeycloakTokenManager {
             this.expirationTime = requestTime + this.currentToken.getExpiresIn();
         }
         return this.currentToken;
+    }
+
+    private HttpMethod<AccessTokenResponse> tokenRequest(String grantType) {
+        String path = "/realms/%s/protocol/openid-connect/token";
+        HttpMethod<AccessTokenResponse> httpMethod = this.http.post(path, this.config.getRealm());
+        httpMethod.param(OAuth2Constants.GRANT_TYPE, grantType);
+
+        if (this.config.isPublicClient()) {
+            httpMethod.param(OAuth2Constants.CLIENT_ID, this.config.getResource());
+        } else {
+            httpMethod.authorizationBasic(this.config.getResource(),
+                                          this.config.getCredentials().get("secret").toString());
+        }
+
+        return httpMethod;
     }
 
     public synchronized void setMinTokenValidity(long minTokenValidity) {
