@@ -10,6 +10,7 @@ It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x.
 
 - Supports to map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak.
 - Supports to map multiple Keycloak realms.
+- Supports Keycloak Single Sign On (SSO): sign-in and sing-out are all supported.
 
 ## Warning
 
@@ -190,6 +191,23 @@ Then, enable the corresponding Keycloak authentication realm in Nexus3:
 ![](./docs/images/enable-multi-keycloak-auth-realm.png)
 
 Finally, you just need to map the new realm roles/groups to Nexus3 as the default one.
+
+## Single Sign On (SSO)
+
+From the version 0.3.4, you can login Nexus3 using Keycloak as SSO (Single Sign On) provider.
+
+Before enable SSO, you need to put a reverse gateway (Nginx, Httpd etc.) before your Nexus3 server.
+
+Then, the reverse gateway should do authentication via Keycloak and pass the HTTP header
+`X-Keycloak-Sec-Auth: <username>:<access token>` to your Nexus3 server.
+
+You can check the code of [develop/vhost.d/nexus3.conf](./develop/vhost.d/nexus3.conf) for more details.
+
+Note, if you login as Administrator, and refresh the administration page, you will see the 'Sign in' window:
+
+![](./docs/images/enable-keycloak-sso-will-cause-popup-nexus-sign-in-window-after-reload-page.png)
+
+Don't worry about it, you still login, just close the window.
 
 ## Docker
 
