@@ -5,7 +5,7 @@ NEXUS_HOME=/opt/sonatype/nexus
 
 DCR_NAME=nexus3-keycloak-dev
 DCR_IMAGE_NAME=nexus3-keycloak-dev
-DCR_IMAGE_VERSION=3.6.0-02
+DCR_IMAGE_VERSION=3.16.2-01
 DCR_IMAGE="${DCR_IMAGE_NAME}:${DCR_IMAGE_VERSION}"
 
 DCR_DATA_VOLUME="${DIR}/data/nexus3"
