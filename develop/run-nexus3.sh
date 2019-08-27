@@ -32,7 +32,6 @@ docker run --rm \
 
 echo "Create new docker container - ${DCR_NAME}"
 docker run -d --name ${DCR_NAME} \
-                --restart always \
                 -e NEXUS_CONTEXT="/" \
                 -v "${DCR_DATA_VOLUME}":/nexus-data \
                 ${keycloak_json_mappings} \
