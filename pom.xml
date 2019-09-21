@@ -9,6 +9,20 @@
     <name>${project.groupId}:${project.artifactId}</name>
     <packaging>bundle</packaging>
 
+    <url>https://github.com/flytreeleft/nexus3-keycloak-plugin</url>
+    <description>
+        This plugin adds a Keycloak realm to Sonatype Nexus OSS and enables you
+        to authenticate with Keycloak Realm Users and authorize with Keycloak realm/client roles or groups.
+    </description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <parent>
         <groupId>org.sonatype.nexus.plugins</groupId>
         <artifactId>nexus-plugins</artifactId>
@@ -18,8 +32,57 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
         <keycloak.version>4.5.0.Final</keycloak.version>
     </properties>
+
+    <issueManagement>
+        <system>Github Issues</system>
+        <url>https://github.com/flytreeleft/nexus3-keycloak-plugin/issues</url>
+    </issueManagement>
+
+    <organization>
+        <name>Crazydan Studio</name>
+        <url>https://crazydan.org</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:git://github.com/flytreeleft/nexus3-keycloak-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:flytreeleft/nexus3-keycloak-plugin.git</developerConnection>
+        <url>https://github.com/flytreeleft/nexus3-keycloak-plugin</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>flytreeleft</id>
+            <name>flytreeleft</name>
+            <email>flytreeleft@126.com</email>
+            <url>https://github.com/flytreeleft</url>
+            <organization>Crazydan Studio</organization>
+            <roles>
+                <role>project-owner</role>
+                <role>project-developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>hypery2k</name>
+            <url>https://github.com/hypery2k</url>
+        </contributor>
+        <contributor>
+            <name>boardend</name>
+            <url>https://github.com/boardend</url>
+        </contributor>
+        <contributor>
+            <name>TarasRozputnii</name>
+            <url>https://github.com/TarasRozputnii</url>
+        </contributor>
+    </contributors>
 
     <dependencies>
         <dependency>
@@ -55,8 +118,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -123,4 +186,17 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/flytreeleft/nexus3-keycloak-plugin</url>
+        </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/flytreeleft/nexus3-keycloak-plugin</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
