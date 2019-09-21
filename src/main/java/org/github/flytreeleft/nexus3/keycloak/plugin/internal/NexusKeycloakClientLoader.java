@@ -21,28 +21,30 @@ public class NexusKeycloakClientLoader {
     private static final Map<String, NexusKeycloakClient> clientMap = new HashMap<>();
 
     public static NexusKeycloakClient loadDefaultClient() {
-        return loadClient("Keycloak", DEFAULT_CONFIG);
+        return loadClient("Keycloak", null, DEFAULT_CONFIG);
     }
 
     public static NexusKeycloakClient loadDefaultClient0() {
-        return loadClient("Keycloak (#0)", DEFAULT_0_CONFIG);
+        return loadClient("Keycloak (#0)", "kc0", DEFAULT_0_CONFIG);
     }
 
     public static NexusKeycloakClient loadDefaultClient1() {
-        return loadClient("Keycloak (#1)", DEFAULT_1_CONFIG);
+        return loadClient("Keycloak (#1)", "kc1", DEFAULT_1_CONFIG);
     }
 
     public static NexusKeycloakClient loadDefaultClient2() {
-        return loadClient("Keycloak (#2)", DEFAULT_2_CONFIG);
+        return loadClient("Keycloak (#2)", "kc2", DEFAULT_2_CONFIG);
     }
 
-    public synchronized static NexusKeycloakClient loadClient(String source, String keycloakConfigName) {
+    public synchronized static NexusKeycloakClient loadClient(
+            String source, String sourceCode, String keycloakConfigName
+    ) {
         NexusKeycloakClient client = clientMap.get(keycloakConfigName);
 
         if (client == null) {
             File config = FileUtils.getFile(".", "etc", keycloakConfigName);
             if (config.exists()) {
-                client = new NexusKeycloakClient(source, config);
+                client = new NexusKeycloakClient(source, sourceCode, config);
 
                 clientMap.put(keycloakConfigName, client);
             }

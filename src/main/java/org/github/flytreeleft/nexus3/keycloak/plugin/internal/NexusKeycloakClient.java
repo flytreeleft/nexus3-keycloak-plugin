@@ -26,6 +26,7 @@ public class NexusKeycloakClient {
     private static final Logger logger = LoggerFactory.getLogger(NexusKeycloakClient.class);
 
     private String source;
+    private String sourceCode;
     private File config;
     private transient KeycloakAdminClient keycloakAdminClient;
 
@@ -33,9 +34,10 @@ public class NexusKeycloakClient {
         this.source = source;
     }
 
-    public NexusKeycloakClient(String source, File config) {
+    public NexusKeycloakClient(String source, String sourceCode, File config) {
         this.config = config;
         this.source = source;
+        this.sourceCode = sourceCode;
 
         try {
             this.keycloakAdminClient = new KeycloakAdminClient(FileUtils.openInputStream(this.config));
@@ -78,7 +80,11 @@ public class NexusKeycloakClient {
         List<GroupRepresentation> realmGroups = this.keycloakAdminClient.getRealmGroupsOfUser(user);
 
         // Convert to compatible roles to make sure the existing role-mappings are still working
-        return KeycloakMapper.toCompatibleRoleIds(clientRoles, realmRoles, realmGroups);
+        if (getSourceCode() == null) {
+            return KeycloakMapper.toCompatibleRoleIds(getSource(), clientRoles, realmRoles, realmGroups);
+        } else {
+            return KeycloakMapper.toRoleIds(getSource(), getSourceCode(), clientRoles, realmRoles, realmGroups);
+        }
     }
 
     public User findUserByUserId(String userId) {
@@ -90,20 +96,26 @@ public class NexusKeycloakClient {
     public Role findRoleByRoleId(String roleId) {
         String[] splits = roleId.split(":");
         String roleType = splits.length > 1 ? splits[0] : null;
+        String roleSourceCode = splits.length > 2 ? splits[1] : null;
         String roleName = splits[splits.length - 1];
+
+        if (!(roleSourceCode + "").equals(getSourceCode() + "")) {
+            return null;
+        }
 
         RoleRepresentation role;
         if (KeycloakMapper.REALM_GROUP_PREFIX.equals(roleType)) {
             GroupRepresentation group = this.keycloakAdminClient.getRealmGroupByGroupPath(roleName);
 
-            return KeycloakMapper.toRole(getSource(), group);
+            return KeycloakMapper.toRole(getSource(), getSourceCode(), group);
         } else if (KeycloakMapper.REALM_ROLE_PREFIX.equals(roleType)) {
             role = this.keycloakAdminClient.getRealmRoleByRoleName(roleName);
         } else {
             String client = this.keycloakAdminClient.getConfig().getResource();
             role = this.keycloakAdminClient.getRealmClientRoleByRoleName(client, roleName);
         }
-        return KeycloakMapper.toRole(getSource(), role);
+
+        return KeycloakMapper.toRole(getSource(), getSourceCode(), role);
     }
 
     public Set<String> findAllUserIds() {
@@ -134,14 +146,19 @@ public class NexusKeycloakClient {
 
     public Set<Role> findRoles() {
         String client = this.keycloakAdminClient.getConfig().getResource();
+
         List<RoleRepresentation> clientRoles = this.keycloakAdminClient.getRealmClientRoles(client);
         List<RoleRepresentation> realmRoles = this.keycloakAdminClient.getRealmRoles();
         List<GroupRepresentation> realmGroups = this.keycloakAdminClient.getRealmGroups();
 
-        return KeycloakMapper.toRoles(getSource(), clientRoles, realmRoles, realmGroups);
+        return KeycloakMapper.toRoles(getSource(), getSourceCode(), clientRoles, realmRoles, realmGroups);
     }
 
     public String getSource() {
         return this.source;
+    }
+
+    public String getSourceCode() {
+        return this.sourceCode;
     }
 }
