@@ -1,11 +1,12 @@
 {
-  "realm": "master",
+  "realm": "default",
   "auth-server-url": "http://172.17.0.1:8086/auth",
   "ssl-required": "external",
   "resource": "nexus3",
+  "verify-token-audience": true,
   "credentials": {
-    "secret": "1a2bfe56-9b4b-4bf3-bda2-2dd31fed1b9a"
+    "secret": "af5e2fba-ccd7-4bf8-a3d8-190dd203127b"
   },
-  "confidential-port": 0,
-  "policy-enforcer": {}
+  "use-resource-role-mappings": true,
+  "confidential-port": 0
 }
