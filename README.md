@@ -209,6 +209,8 @@ Note, if you login as Administrator, and refresh the administration page, you wi
 
 Don't worry about it, you still login, just close the window.
 
+**Note**: After you login, you can click the logout button to logout and it will redirect to the Keycloak login page.
+
 ## Docker
 
 You can execute command `bash docker/build.sh` to build your Nexus3 Docker image with this plugin.
