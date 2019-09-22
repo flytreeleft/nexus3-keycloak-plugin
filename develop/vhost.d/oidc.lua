@@ -88,29 +88,30 @@ local function openidc_backend_logout(opts, session_opts)
 
     local session = require("resty.session").open(session_opts)
     local id_token = session.data.enc_id_token
+
+    local end_session_endpoint = discovery.end_session_endpoint or discovery.ping_end_session_endpoint
+    local httpc = http.new()
+    -- https://github.com/ledgetech/lua-resty-http#request
+    local res, err = httpc:request_uri(end_session_endpoint, {
+        method = "GET",
+        query = {
+            id_token_hint = id_token -- Pass encoded id_token
+        },
+        ssl_verify = (ssl_verify ~= "no")
+    })
+
+    if err then
+        return openidc_send_error(err)
+    end
     session:destroy()
 
     if opts.redirect_after_logout_uri then
         return ngx.redirect(opts.redirect_after_logout_uri)
     else
-        local end_session_endpoint = discovery.end_session_endpoint or discovery.ping_end_session_endpoint
-        local httpc = http.new()
-        -- https://github.com/ledgetech/lua-resty-http#request
-        local res, err = httpc:request_uri(end_session_endpoint, {
-            method = "GET",
-            query = {
-                id_token_hint = id_token -- Pass encoded id_token
-            },
-            ssl_verify = (ssl_verify ~= "no")
-        })
-        if err then
-            return openidc_send_error(err)
-        end
+        ngx.header.content_type = "text/html"
+        ngx.say("<html><body>Logged Out</body></html>")
+        ngx.exit(ngx.OK)
     end
-
-    ngx.header.content_type = "text/html"
-    ngx.say("<html><body>Logged Out</body></html>")
-    ngx.exit(ngx.OK)
 end
 
 
@@ -135,7 +136,7 @@ local function oidc_check(opts, session_opts)
     end
 
     -- Do logout in the background
-    if ngx.var.request_uri == opts.logout_path and not opts.redirect_logout_url then
+    if ngx.var.request_uri == opts.logout_path then
         return openidc_backend_logout(opts, session_opts)
     end
 
@@ -195,7 +196,7 @@ local opts = {
     client_secret = ngx.var.oidc_client_secret,
     ssl_verify = ngx.var.oidc_ssl_verify or "no",
     logout_path = ngx.var.oidc_logout_path,
-    redirect_logout_url = not (ngx.var.oidc_redirect_logout_url == "false"),
+    redirect_after_logout_uri = ngx.var.oidc_redirect_after_logout_uri,
     -- Prevent 'client_secret' to be nil:
     -- https://github.com/pingidentity/lua-resty-openidc/blob/v1.5.3/lib/resty/openidc.lua#L353
     token_endpoint_auth_method = "client_secret_post",
