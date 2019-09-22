@@ -188,6 +188,10 @@ local function oidc_check(opts, session_opts)
 end
 
 
+if ngx.var.oidc_disabled == "true" then
+    return
+end
+
 local opts = {
     -- Redirect uri which doesn't exist and cannot be '/'
     redirect_uri_path = "/redirect_uri",
