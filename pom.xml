@@ -35,7 +35,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <keycloak.version>4.5.0.Final</keycloak.version>
+        <keycloak.version>7.0.0</keycloak.version>
     </properties>
 
     <issueManagement>
