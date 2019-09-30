@@ -16,5 +16,5 @@ docker run -d --name ${DCR_NAME} \
                 -p 172.17.0.1:80:80 \
                 -e DISABLE_CERTBOT=true \
                 -e DISABLE_GIXY=true \
-                -v "${DIR}/vhost.d":/etc/nginx/vhost.d \
+                -v "${DIR}/nginx-gateway/vhost.d":/etc/nginx/vhost.d \
                 ${DCR_IMAGE}
