@@ -17,7 +17,7 @@ $ sudo docker run --rm \
                 -it jboss/keycloak:4.5.0.Final \
                 -R jboss /mnt
 
-$ sudo docker run -d --name keycloak-dev \
+$ sudo docker run -d --name nexus3-keycloak \
                 -e KEYCLOAK_LOGLEVEL=DEBUG \
                 -e KEYCLOAK_USER=admin \
                 -e KEYCLOAK_PASSWORD=admin123 \
@@ -82,17 +82,17 @@ If you want to check the logs of the Nexus3 server, just running the following c
 
 ```bash
 # Print the latest 500 lines
-$ sudo docker logs --tail 500 nexus3-keycloak-dev
+$ sudo docker logs --tail 500 nexus3-dev
 
 # Print the log to file
-$ sudo docker logs nexus3-keycloak-dev >& nexus3.log
+$ sudo docker logs nexus3-dev >& nexus3.log
 ```
 
 And if you updated this plugin, just [rebuild](#build-this-plugin) it,
 then you just only need to restart the Nexus3 container like this:
 
 ```bash
-$ sudo docker restart nexus3-keycloak-dev
+$ sudo docker restart nexus3-dev
 ```
 
 ## Single Sign On (SSO) supports via Nginx gateway
@@ -100,7 +100,7 @@ $ sudo docker restart nexus3-keycloak-dev
 If you want to use or test the SSO feature, you should build the Nginx gateway first:
 
 ```bash
-$ sudo bash ./develop/run-nginx.sh
+$ sudo bash ./develop/run-nginx-gateway.sh
 ```
 
 Then you can access `http://172.17.0.1` in your browser, it will redirect to the Keycloak login page like
