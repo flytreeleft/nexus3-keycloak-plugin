@@ -14,6 +14,7 @@ docker rm -f ${DCR_NAME}
 echo "Create new docker container - ${DCR_NAME}"
 docker run -d --name ${DCR_NAME} \
                 -p 172.17.0.1:80:80 \
+                -p 172.17.0.1:88:88 \
                 -e DISABLE_CERTBOT=true \
                 -e DISABLE_GIXY=true \
                 -v "${DIR}/nginx-gateway/vhost.d":/etc/nginx/vhost.d \
