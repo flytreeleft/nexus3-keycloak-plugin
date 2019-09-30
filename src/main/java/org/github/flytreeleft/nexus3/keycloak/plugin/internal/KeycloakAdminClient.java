@@ -109,8 +109,7 @@ public class KeycloakAdminClient {
         HttpMethod<List<UserRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users",
                                                                         this.config.getRealm());
 
-        // https://github.com/keycloak/keycloak/blob/master/services/src/main/java/org/keycloak/services/resources/admin/UsersResource.java#L177
-        boolean isEmail = EMAIL_PATTERN.matcher(userNameOrEmail).matches();
+        boolean isEmail = isEmail(userNameOrEmail);
         if (isEmail) {
             httpMethod.param("email", userNameOrEmail);
         } else {
@@ -290,6 +289,11 @@ public class KeycloakAdminClient {
             list.addAll(getAllGroupsRecursively(group.getSubGroups()));
         }
         return list;
+    }
+
+    public boolean isEmail(String userNameOrEmail) {
+        // https://github.com/keycloak/keycloak/blob/master/services/src/main/java/org/keycloak/services/resources/admin/UsersResource.java#L177
+        return userNameOrEmail != null && EMAIL_PATTERN.matcher(userNameOrEmail).matches();
     }
 
     public AdapterConfig getConfig() {
