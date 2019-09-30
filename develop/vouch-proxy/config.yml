@@ -1,0 +1,30 @@
+# https://github.com/vouch/vouch-proxy/blob/master/config/config.yml_example
+vouch:
+  # valid domains that the jwt cookies can be set into
+  # the callback_urls will be to these domains
+  domains:
+  - 172.17.0.1:88    # the Nginx site for doing authentication via Vouch proxy
+  - 172.17.0.1:9090  # the Vouch proxy self
+  - 172.17.0.1:8086  # the Keycloak server
+  - 172.17.0.1:8903  # the Nexus3 server
+  - example.com    # the user's email domain
+
+  headers:
+    # accesstoken - Pass the user's access token from the provider.
+    # This is useful if you need to pass the IdP token to a downstream application.
+    # This is optional.
+    accesstoken: X-Vouch-IdP-AccessToken
+
+oauth:
+  # Generic OpenID Connect
+  provider: oidc
+  client_id: nexus3
+  client_secret: af5e2fba-ccd7-4bf8-a3d8-190dd203127b
+  auth_url: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/auth
+  token_url: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/token
+  user_info_url: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/userinfo
+  scopes:
+  - openid
+  - email
+  - profile
+  callback_url: http://172.17.0.1:9090/auth
