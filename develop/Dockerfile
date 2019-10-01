@@ -1,4 +1,4 @@
-FROM cavemandaveman/nexus:3.6.0-02
+FROM cavemandaveman/nexus:3.16.2-01
 
 ENV NEXUS_PLUGINS ${NEXUS_HOME}/system
 
