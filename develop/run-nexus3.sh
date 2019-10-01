@@ -37,4 +37,5 @@ docker run -d --name ${DCR_NAME} \
                 ${keycloak_json_mappings} \
                 -v "${PLUGIN_JAR}":"${NEXUS_HOME}/system/org/github/flytreeleft/nexus3-keycloak-plugin/${PLUGIN_VERSION}/nexus3-keycloak-plugin-${PLUGIN_VERSION}.jar":ro \
                 -p 172.17.0.1:8903:8081 \
+                -p 172.17.0.1:5000:5000 \
                 ${DCR_IMAGE}
