@@ -21,8 +21,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Deploy to Github repository
+    - name: Deploy to Github Package Registry
       # https://help.github.com/en/articles/virtual-environments-for-github-actions#default-environment-variables
       env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+        GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn deploy -Dmaven.test.skip=true --file pom.xml
+      run: |
+        echo "${GITHUB_CONTEXT}"
+        mvn deploy -Dmaven.test.skip=true --settings .github/workflows/maven-settings.xml --file pom.xml
