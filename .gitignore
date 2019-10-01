@@ -7,6 +7,4 @@ bundle
 .idea
 
 etc/keycloak.json
-develop/keycloak*.json
-develop/*.jar
-develop/data/
+

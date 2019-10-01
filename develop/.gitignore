@@ -1,3 +1,5 @@
+*.jar
 keycloak.json
 keycloak.*.json
+data/
 
