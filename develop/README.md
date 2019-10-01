@@ -54,7 +54,7 @@ $ sudo bash ./develop/build-nexus3.sh
 After that, a Docker image which is named as `nexus3-keycloak-dev:3.16.2-01` will be shown in the list of `sudo docker images`.
 
 **Note**:
-- The image is based on [cavemandaveman/nexus](./cavemandaveman-nexus-docker/)(source from https://github.com/cavemandaveman/nexus) which is running Nexus `v3.16.2-01`.
+- The image is based on [cavemandaveman/nexus](./cavemandaveman-nexus-docker/) (source from https://github.com/cavemandaveman/nexus) which is running Nexus `v3.16.2-01`.
 
 ## Build this plugin
 
