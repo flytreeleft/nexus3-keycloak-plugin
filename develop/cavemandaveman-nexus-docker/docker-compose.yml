@@ -1,0 +1,12 @@
+nexus:
+  image: cavemandaveman/nexus:latest
+  container_name: "nexus"
+  ports:
+    - "8081:8081"
+  environment:
+    JAVA_MIN_MEM: "1200M"
+    JAVA_MAX_MEM: "1200M"
+  ulimits:
+    nofile:
+      soft: 65536
+      hard: 65536
