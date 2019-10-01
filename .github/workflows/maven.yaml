@@ -23,10 +23,10 @@ jobs:
         java-version: 1.8
     - name: Deploy to Github Package Registry
       # https://help.github.com/en/articles/virtual-environments-for-github-actions#default-environment-variables
+      # https://help.github.com/en/articles/contexts-and-expression-syntax-for-github-actions#github-context
+      # https://stackoverflow.com/questions/57711558/deploy-to-github-package-registry-from-github-action#answer-58109063
       env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "${GITHUB_CONTEXT}"
         mvn deploy -Dmaven.test.skip=true --settings .github/workflows/maven-settings.xml --file pom.xml
