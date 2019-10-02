@@ -10,6 +10,18 @@ vouch:
   - example.com    # the user's email domain
 
   headers:
+    # claims - a list of claims that will be stored in the JWT and passed down to applications via headers
+    # By default claims are sent down as headers with a prefix of X-Vouch-IdP-Claims-ClaimKey
+    # Only when a claim is found in the user's info will the header exist.
+    # This is optional. These are case sensitive.
+    claims:
+    # Access http://172.17.0.1:8086/auth/realms/default/.well-known/openid-configuration to find the supported claims
+    - groups
+    - preferred_username # which means the username (not email)
+    # these will result in two headers being passed back to nginx
+    # X-Vouch-IdP-Claims-groups
+    # X-Vouch-IdP-Claims-preferred_username
+
     # accesstoken - Pass the user's access token from the provider.
     # This is useful if you need to pass the IdP token to a downstream application.
     # This is optional.
