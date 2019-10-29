@@ -6,7 +6,7 @@ KEYCLOAK_CONFIG="${DIR}/keycloak.json"
 
 DCR_NAME=nexus3
 DCR_IMAGE=nexus-oss/nexus3
-DCR_IMAGE_VERSION=3.6.0-02-r4
+DCR_IMAGE_VERSION=3.19.1-01
 
 if [ ! -e "${KEYCLOAK_CONFIG}" ]; then
     echo "Please provide your keycloak.json and put it to ${DIR}"
@@ -20,5 +20,4 @@ docker run -d --name ${DCR_NAME} \
                 -e JAVA_MAX_MEM=4096M \
                 -v "${KEYCLOAK_CONFIG}":${NEXUS_HOME}/etc/keycloak.json:ro \
                 -p 8081:8081 \
-                -p 5000:5000 \
                 ${DCR_IMAGE}:${DCR_IMAGE_VERSION}
