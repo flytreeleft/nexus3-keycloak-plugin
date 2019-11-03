@@ -6,13 +6,6 @@ authenticate with Keycloak Realm Users and authorize with Keycloak realm/client 
 
 It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x, Keycloak 5.x, Keycloak 6.x.
 
-> If you are using the offical docker images [sonatype/nexus3](https://hub.docker.com/r/sonatype/nexus3/),
-> you may encounter that `docker login xx.xx.com` returns `404` error (see [#26](https://github.com/flytreeleft/nexus3-keycloak-plugin/issues/26)),
-> the reason isn't confirmed yet.
->
-> So the docker image [cavemandaveman/nexus](https://github.com/cavemandaveman/nexus) is recommended,
-> and you can build the latest version of Nexus3 based on it.
-
 ## Features
 
 - Supports to map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak.
@@ -221,7 +214,7 @@ Don't worry about it, you still login, just close the window.
 ## Docker
 
 You can execute command `bash docker/build.sh` to build your Nexus3 Docker image with this plugin.
-The image is based on [cavemandaveman/nexus](https://github.com/cavemandaveman/nexus) which is running Nexus v3.6.0-02.
+The image is based on https://github.com/sonatype/docker-nexus3 which is running Nexus v3.19.1-01.
 You can change the version of the base image or the version of this plugin in `docker/Dockerfile`.
 
 After the image has been built, you should [prepare](#5-create-keycloakjson) your `keycloak.json`
