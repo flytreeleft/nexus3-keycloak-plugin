@@ -23,6 +23,7 @@
         </license>
     </licenses>
 
+    <!-- Deploy: mvn clean deploy -Dbuildsupport-staging.skip=true -Dmaven.test.skip=true -->
     <parent>
         <groupId>org.sonatype.nexus.plugins</groupId>
         <artifactId>nexus-plugins</artifactId>
