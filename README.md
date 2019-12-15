@@ -65,7 +65,7 @@ directly, just choose the latest version.
 #### 2. Copy all needed jars into nexus system folder
 
 ```
-PLUGIN_VERSION=0.3.2-SNAPSHOT
+PLUGIN_VERSION=0.3.4
 jars="org/github/flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION/nexus3-keycloak-plugin-$PLUGIN_VERSION.jar"
 
 for jar in $(echo $jars | sed 's/ /\n/g'); do
