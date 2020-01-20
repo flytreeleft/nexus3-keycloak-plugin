@@ -1,16 +1,11 @@
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.ClientAuthenticator;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.Http;
@@ -29,6 +24,17 @@ import org.keycloak.util.JsonSerialization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * Client needs service-account with at least "view-clients, view-users" roles for "realm-management"
  * Enable "Service Accounts Enabled" and configure "Service Accounts Roles"
@@ -40,11 +46,10 @@ public class KeycloakAdminClient {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakAdminClient.class);
-
     private final AdapterConfig config;
     private Http http;
     private KeycloakTokenManager tokenManager;
+    private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClient.class);
 
     public KeycloakAdminClient(AdapterConfig config) {
         this.config = config;
@@ -82,7 +87,7 @@ public class KeycloakAdminClient {
     public UserInfo obtainUserInfo(String accessToken) {
         HttpMethod<UserInfo> httpMethod = getHttp().get("/realms/%s/protocol/openid-connect/userinfo",
                                                         this.config.getRealm());
-
+        this.logger.info("obtainUserInfo accessToken -> " + accessToken);
         httpMethod.authorizationBearer(accessToken);
 
         return httpMethod.response().json(UserInfo.class).execute();
@@ -302,7 +307,25 @@ public class KeycloakAdminClient {
 
     public synchronized Http getHttp() {
         if (this.http == null) {
-            HttpClient httpClient = HttpClients.createDefault();
+            CloseableHttpClient httpClient = null;
+            try {
+                httpClient = HttpClients.custom().
+                        setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).
+                        setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy()
+                        {
+                            @Override
+                            public boolean isTrusted(java.security.cert.X509Certificate[] x509Certificates, String s) throws java.security.cert.CertificateException {
+                                return true;
+                            }
+                        }).build()).build();
+            } catch (KeyManagementException e) {
+                this.logger.error("KeyManagementException in creating http client instance", e);
+            } catch (NoSuchAlgorithmException e) {
+                this.logger.error("NoSuchAlgorithmException in creating http client instance", e);
+            } catch (KeyStoreException e) {
+                this.logger.error("KeyStoreException in creating http client instance", e);
+            }
+
             ClientAuthenticator clientAuthenticator = (HttpMethod httpMethod) -> {
                 String token = getTokenManager().getAccessTokenString();
 

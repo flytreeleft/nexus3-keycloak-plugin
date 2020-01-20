@@ -111,6 +111,7 @@
             <artifactId>goodies-testsupport</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

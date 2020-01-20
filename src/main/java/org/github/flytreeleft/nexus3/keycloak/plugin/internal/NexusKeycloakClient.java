@@ -23,7 +23,6 @@ import org.sonatype.nexus.security.user.User;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
 
 public class NexusKeycloakClient {
-    private static final Logger logger = LoggerFactory.getLogger(NexusKeycloakClient.class);
 
     private String source;
     private String sourceCode;
@@ -66,8 +65,8 @@ public class NexusKeycloakClient {
     public boolean authenticate(KeycloakHttpHeaderAuthToken token) {
         String principal = token.getPrincipal();
         String credentials = token.getCredentials().toString();
-
         UserInfo userInfo = this.keycloakAdminClient.obtainUserInfo(credentials);
+
         if (userInfo == null) {
             return false;
         }
