@@ -50,7 +50,11 @@ public class Http {
     }
 
     private URI uri(String path, Object... placeholders) {
-        return URI.create(this.config.getAuthServerUrl() + String.format(path, placeholders));
+        String authServerUrl = this.config.getAuthServerUrl();
+        if (authServerUrl.endsWith("/") && path.startsWith("/")) {
+            authServerUrl = authServerUrl.substring(0, authServerUrl.length()-1 );
+        }
+        return URI.create(authServerUrl + String.format(path, placeholders));
     }
 
     private <R> HttpMethod<R> method(RequestBuilder builder) {
