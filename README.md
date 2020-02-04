@@ -56,7 +56,7 @@ Build and install the into your local maven repository using the following comma
 ```
 git clone https://github.com/flytreeleft/nexus3-keycloak-plugin.git
 cd nexus3-keycloak-plugin
-mvn clean install
+mvn clean install -Dmaven.test.skip=true
 ```
 
 Note: You can download the compiled jar from the [release page](https://github.com/flytreeleft/nexus3-keycloak-plugin/releases)
@@ -87,6 +87,18 @@ Or running the following command to do that automatically:
 ```
 echo "mvn\\:org.github.flytreeleft/nexus3-keycloak-plugin/$PLUGIN_VERSION = 200" >> $install_dir/etc/karaf/startup.properties
 ```
+
+From the plugin version `0.4.0-SNAPSHOT`, it supports to build a new bundle format
+[KAR](https://help.sonatype.com/repomanager3/bundle-development/installing-bundles)
+which helps us no need to specify the plugin path in `startup.properties` for Nexus v3.15+.
+
+If you are using Nexus v3.15+ and want to use `KAR` bundle, just run
+`mvn -PbuildKar clean install -Dmaven.test.skip=true`, and it will build two packages
+`nexus3-keycloak-plugin-<version>-bundle.kar` and `nexus3-keycloak-plugin-<version>.jar`.
+Then just put the `*.kar` into the directory `$install_dir/deploy/`, and there is no need
+to change `startup.properties` anymore.
+
+Note: The `*.jar` file can be used for Nexus v3.14 and earlier directly.
 
 #### 4. Configure Keycloak realm client
 
