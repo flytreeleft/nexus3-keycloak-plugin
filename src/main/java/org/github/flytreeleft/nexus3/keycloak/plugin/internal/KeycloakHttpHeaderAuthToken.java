@@ -9,9 +9,19 @@ import org.sonatype.nexus.security.authc.HttpHeaderAuthenticationToken;
  * <pre>
  * X-Keycloak-Sec-Auth: &lt;username&gt;:&lt;access token&gt;
  * </pre>
+ * Or put username and auth token to the following headers:
+ * <pre>
+ * X-Auth-Username: &lt;username&gt;
+ * X-Auth-Token: &lt;access token&gt;
+ * </pre>
  */
 public class KeycloakHttpHeaderAuthToken extends HttpHeaderAuthenticationToken {
+    // Headers used if Keycloak directly in front of Nexus
     public static final String HTTP_HEADER_NAME = "X-Keycloak-Sec-Auth";
+    // Headers used if Keycloak gatekeeper in front of Nexus
+    // See https://github.com/flytreeleft/nexus3-keycloak-plugin/pull/37
+    public static final String HTTP_HEADER_USERNAME = "X-Auth-Username";
+    public static final String HTTP_HEADER_AUTH_TOKEN = "X-Auth-Token";
 
     private String principal;
     private String credentials;
