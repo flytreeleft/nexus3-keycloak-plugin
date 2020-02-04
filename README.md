@@ -98,7 +98,9 @@ If you are using Nexus v3.15+ and want to use `KAR` bundle, just run
 Then just put the `*.kar` into the directory `$install_dir/deploy/`, and there is no need
 to change `startup.properties` anymore.
 
-Note: The `*.jar` file can be used for Nexus v3.14 and earlier directly.
+Note:
+- The `*.kar` file can be downloaded from the [release page](https://github.com/flytreeleft/nexus3-keycloak-plugin/releases).
+- The `*.jar` file can be used for Nexus v3.14 and earlier directly.
 
 #### 4. Configure Keycloak realm client
 
