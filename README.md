@@ -208,12 +208,15 @@ Finally, you just need to map the new realm roles/groups to Nexus3 as the defaul
 
 ## Single Sign On (SSO)
 
-From the version 0.3.4, you can login Nexus3 using Keycloak as SSO (Single Sign On) provider.
+From the plugin version 0.3.4, you can login Nexus3 using Keycloak as SSO (Single Sign On) provider.
 
 Before enable SSO, you need to put a reverse gateway (Nginx, Httpd etc.) before your Nexus3 server.
 
 Then, the reverse gateway should do authentication via Keycloak and pass the HTTP header
-`X-Keycloak-Sec-Auth: <username>:<access token>` to your Nexus3 server.
+`X-Keycloak-Sec-Auth: <username>:<auth token>` to your Nexus3 server.
+
+> You also can pass username and auth token via the HTTP header
+> `X-Auth-Username: <username>` and `X-Auth-Token: <auth token>` from the plugin version 0.4.0.
 
 You can check the code of [develop/vhost.d/nexus3.conf](./develop/vhost.d/nexus3.conf) for more details.
 
