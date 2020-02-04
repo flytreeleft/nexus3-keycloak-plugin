@@ -83,6 +83,12 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
         boolean authenticated = false;
 
         try {
+            /* convert username to lowercase to prevent creating multiple user session */
+            if (token instanceof UsernamePasswordToken) {
+                this.logger.info("doGetAuthenticationInfo: Convert username {} to lower case", token.getPrincipal());
+                ((UsernamePasswordToken)token).setUsername(((UsernamePasswordToken)token).getUsername().toLowerCase());
+            }
+
             authenticated = this.client.authenticate(token);
 
             this.logger.info("doGetAuthenticationInfo for {} via {}: {}",
