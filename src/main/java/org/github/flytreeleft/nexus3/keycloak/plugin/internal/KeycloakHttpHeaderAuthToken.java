@@ -20,7 +20,8 @@ public class KeycloakHttpHeaderAuthToken extends HttpHeaderAuthenticationToken {
         super(headerName, headerValue, host);
 
         String[] splits = super.getPrincipal().split(":");
-        this.principal = splits.length > 0 ? splits[0] : null;
+        /* convert username to lowercase to prevent creating multiple user session */
+        this.principal = splits.length > 0 ? splits[0].toLowerCase() : null;
         this.credentials = splits.length > 1 ? splits[1] : "";
     }
 
