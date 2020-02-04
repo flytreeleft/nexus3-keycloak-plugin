@@ -7,12 +7,12 @@ import org.sonatype.nexus.security.authc.HttpHeaderAuthenticationToken;
  * <p/>
  * The header should be:
  * <pre>
- * X-Keycloak-Sec-Auth: &lt;username&gt;:&lt;access token&gt;
+ * X-Keycloak-Sec-Auth: &lt;username&gt;:&lt;auth token&gt;
  * </pre>
  * Or put username and auth token to the following headers:
  * <pre>
  * X-Auth-Username: &lt;username&gt;
- * X-Auth-Token: &lt;access token&gt;
+ * X-Auth-Token: &lt;auth token&gt;
  * </pre>
  */
 public class KeycloakHttpHeaderAuthToken extends HttpHeaderAuthenticationToken {
