@@ -47,7 +47,7 @@ To avoid confusion, the conventions of the Sonatype reference will be used in th
 * nexus-3.3.2-02 will be referred to as **$install_dir**
 * sonatype-work/nexus3 will be referred to as **$data_dir**
 
-See [https://books.sonatype.com/nexus-book/reference3/install.html#directories](https://books.sonatype.com/nexus-book/reference3/install.html#directories)
+See [https://help.sonatype.com/repomanager3/installation/directories](https://help.sonatype.com/repomanager3/installation/directories)
 for reference.
 
 #### 1. Build the plugin
