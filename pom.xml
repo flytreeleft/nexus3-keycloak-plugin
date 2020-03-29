@@ -36,7 +36,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <keycloak.version>4.5.0.Final</keycloak.version>
+        <keycloak.version>9.0.2</keycloak.version>
     </properties>
 
     <issueManagement>
@@ -95,6 +95,16 @@
             <groupId>org.sonatype.nexus</groupId>
             <artifactId>nexus-plugin-api</artifactId>
             <scope>provided</scope>
+            <exclusions>
+                <!-- To get rid of the error:
+                Use Import/Export Package directive -split-package:=(merge-first|merge-last|error|first) to get rid of this warning
+                Package found in   [Jar:jakarta.activation, Jar:activation]
+                -->
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.sonatype.nexus</groupId>
@@ -143,7 +153,9 @@
                         </Import-Package>
                         <!-- Package all specified class into bundle jar. -->
                         <Export-Package>
-                            org.keycloak.*
+                            org.keycloak.*,
+                            javax.activation.*,
+                            com.sun.activation.*
                         </Export-Package>
                     </instructions>
                 </configuration>
