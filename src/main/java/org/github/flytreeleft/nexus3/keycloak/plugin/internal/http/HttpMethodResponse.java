@@ -1,6 +1,9 @@
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal.http;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import org.keycloak.util.JsonSerialization;
 
 import java.io.IOException;
@@ -33,6 +36,8 @@ public class HttpMethodResponse<R> {
             public R execute() {
                 return method.execute((InputStream inputStream) -> {
                     try {
+                        JsonSerialization.mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+                        JsonSerialization.mapper.setVisibility(VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
                         return JsonSerialization.readValue(inputStream, responseType);
                     } catch (IOException e) {
                         throw new RuntimeException("Error parsing JSON response.", e);
