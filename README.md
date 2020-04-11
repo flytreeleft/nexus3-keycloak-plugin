@@ -15,7 +15,7 @@ It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x, Keycloak 5.x, Keycloak 6
 ## Warning
 
 If you are using the version 0.2.x of this plugin, and want to upgrade the plugin to 0.3.x,
-you should create some new roles in Nexus3, becuase the new version of the plugin supports to
+you should create some new roles in Nexus3, because the new version of the plugin supports to
 map the **Realm-Roles**, **Client-Roles** and **Realm-Groups** of Keycloak to the Nexus3 roles.
 
 But don't worry about your data or the existing role-mappings, they will still work well.
