@@ -218,7 +218,8 @@ Then, the reverse gateway should do authentication via Keycloak and pass the HTT
 > You also can pass username and auth token via the HTTP header
 > `X-Auth-Username: <username>` and `X-Auth-Token: <auth token>` from the plugin version 0.4.0.
 
-You can check the code of [develop/vhost.d/nexus3.conf](./develop/vhost.d/nexus3.conf) for more details.
+You can check the code of [develop/nginx-gateway/vhost.d/nexus3.conf](./develop/nginx-gateway/vhost.d/nexus3.conf)
+for more details.
 
 Note, if you login as Administrator, and refresh the administration page, you will see the 'Sign in' window:
 
