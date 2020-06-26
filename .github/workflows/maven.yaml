@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - 'master'
+    - 'bugfix-**'
     - 'snapshot/**'
     - 'releases/**'
     paths:
