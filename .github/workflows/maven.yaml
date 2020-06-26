@@ -29,5 +29,10 @@ jobs:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Note: the 'release' profile should be disable, we will do publish with github repository
-        mvn deploy -P ,-release -Dmaven.test.skip=true --settings .github/workflows/maven-settings.xml --file pom.xml
+        # Note: disable staging integration (buildsupport-staging.skip=true),
+        # it will push the artifacts to the nexus's repository which isn't owned by us
+        mvn clean deploy -X \
+          -Dbuildsupport-staging.skip=true \
+          -Dmaven.test.skip=true \
+          --settings .github/workflows/maven-settings.xml \
+          --file pom.xml
