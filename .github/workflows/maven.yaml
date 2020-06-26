@@ -1,17 +1,15 @@
 # https://help.github.com/en/articles/workflow-syntax-for-github-actions
-name: Java CI
+name: Deploy Artifacts
 on:
-  push:
-    branches:
-    - 'master'
-    - 'snapshot/**'
-    - 'releases/**'
-    paths:
-    - 'src/**'
-    - 'pom.xml'
-    - '.github/workflows/*'
-  # release:
-  #   types: [published, created]
+#  push:
+#    branches:
+#    paths:
+#    - 'src/**'
+#    - 'pom.xml'
+#    - '.github/workflows/*'
+  release:
+    types:
+    - published
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -29,4 +27,10 @@ jobs:
         GITHUB_USERNAME: ${{ github.actor }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        mvn deploy -Dmaven.test.skip=true --settings .github/workflows/maven-settings.xml --file pom.xml
+        # Note: disable staging integration (buildsupport-staging.skip=true),
+        # it will push the artifacts to the nexus's repository which isn't owned by us
+        mvn clean deploy -X \
+          -Dbuildsupport-staging.skip=true \
+          -Dmaven.test.skip=true \
+          --settings .github/workflows/maven-settings.xml \
+          --file pom.xml
