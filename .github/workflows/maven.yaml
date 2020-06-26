@@ -1,18 +1,15 @@
 # https://help.github.com/en/articles/workflow-syntax-for-github-actions
-name: Java CI
+name: Deploy Artifacts
 on:
   push:
     branches:
-    - 'master'
-    - 'bugfix-**'
-    - 'snapshot/**'
-    - 'releases/**'
     paths:
     - 'src/**'
     - 'pom.xml'
     - '.github/workflows/*'
-  # release:
-  #   types: [published, created]
+  release:
+    types:
+    - published
 jobs:
   deploy:
     runs-on: ubuntu-latest
