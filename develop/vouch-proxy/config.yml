@@ -26,6 +26,10 @@ vouch:
     # This is useful if you need to pass the IdP token to a downstream application.
     # This is optional.
     accesstoken: X-Vouch-IdP-AccessToken
+  # in order to prevent redirection attacks all redirected URLs to /logout must be specified
+  # the URL must still be passed to Vouch Proxy as https://vouch.yourdomain.com/logout?url=${ONE OF THE URLS BELOW}
+  post_logout_redirect_uris:
+    - http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/logout
 
 oauth:
   # Generic OpenID Connect
@@ -35,6 +39,7 @@ oauth:
   auth_url: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/auth
   token_url: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/token
   user_info_url: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/userinfo
+  end_session_endpoint: http://172.17.0.1:8086/auth/realms/default/protocol/openid-connect/logout
   scopes:
   - openid
   - email
