@@ -6,13 +6,17 @@ import org.keycloak.OAuth2Constants;
 import org.keycloak.common.util.Time;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.adapters.config.AdapterConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KeycloakTokenManager {
-    private static final long DEFAULT_MIN_VALIDITY = 30;
+    private static final long DEFAULT_MIN_VALIDITY = 30; // seconds
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private AccessTokenResponse currentToken;
-    private long expirationTime;
-    private long minTokenValidity = DEFAULT_MIN_VALIDITY;
+    private long expirationTime; // seconds
+    private long minTokenValidity = DEFAULT_MIN_VALIDITY; // seconds
     private final AdapterConfig config;
     private final Http http;
     private final String grantType;
@@ -23,11 +27,11 @@ public class KeycloakTokenManager {
         this.grantType = OAuth2Constants.CLIENT_CREDENTIALS;
 
         if (config.isPublicClient()) {
-            throw new IllegalArgumentException("Can't use " +
-                                               OAuth2Constants.GRANT_TYPE +
-                                               "=" +
-                                               OAuth2Constants.CLIENT_CREDENTIALS +
-                                               " with public client");
+            throw new IllegalArgumentException("Can't use "
+                                               + OAuth2Constants.GRANT_TYPE
+                                               + "="
+                                               + OAuth2Constants.CLIENT_CREDENTIALS
+                                               + " with public client");
         }
     }
 
@@ -67,6 +71,8 @@ public class KeycloakTokenManager {
         synchronized (this) {
             this.currentToken = httpMethod.response().json(AccessTokenResponse.class).execute();
             this.expirationTime = requestTime + this.currentToken.getExpiresIn();
+
+            this.logger.info("Token {} will be expired after {}s", this.currentToken, this.currentToken.getExpiresIn());
         }
         return this.currentToken;
     }
