@@ -66,26 +66,23 @@ public class NexusKeycloakClient {
     public boolean authenticate(KeycloakHttpHeaderAuthToken token) {
         String principal = token.getPrincipal();
         String credentials = token.getCredentials().toString();
-        boolean authenticated = false;
 
         UserInfo userInfo = this.keycloakAdminClient.obtainUserInfo(credentials);
         if (userInfo == null) {
             return false;
         }
-        authenticated = userInfo.getPreferredUsername().equals(principal);
-        this.logger.info("principal is {} while pun is {}, so auth result is {}",
-                             principal,
-                             userInfo.getPreferredUsername(),
-                             authenticated);
 
-        if (authenticated) {
-            return authenticated;
+        if (userInfo.getPreferredUsername().equals(principal)) {
+            return true;
         }
-        boolean isEmail = this.keycloakAdminClient.isEmail(principal);
-        if (isEmail) {
+        logger.info("The principal {} doesn't match the preferred username, try to verify it as an email", principal);
+
+        if (this.keycloakAdminClient.isEmail(principal)) {
             return userInfo.getEmailVerified() && principal.equals(userInfo.getEmail());
         }
-        return authenticated;
+        logger.info("The principal {} isn't an email, authentication is failed", principal);
+
+        return false;
     }
 
     public Set<String> findRoleIdsByUserId(String userId) {
