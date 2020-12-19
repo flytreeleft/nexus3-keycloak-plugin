@@ -39,7 +39,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private NexusKeycloakClient client;
+    private final NexusKeycloakClient client;
 
     public KeycloakAuthenticatingRealm() {
         this(NexusKeycloakClientLoader.loadDefaultClient());

@@ -8,6 +8,8 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.nexus.security.role.Role;
 import org.sonatype.nexus.security.user.User;
 import org.sonatype.nexus.security.user.UserSearchCriteria;
@@ -17,6 +19,7 @@ public class NexusKeycloakClientLoader {
     public static final String DEFAULT_0_CONFIG = "keycloak.0.json";
     public static final String DEFAULT_1_CONFIG = "keycloak.1.json";
     public static final String DEFAULT_2_CONFIG = "keycloak.2.json";
+    private static final Logger LOGGER = LoggerFactory.getLogger(NexusKeycloakClientLoader.class);
 
     private static final Map<String, NexusKeycloakClient> clientMap = new HashMap<>();
 
@@ -42,11 +45,14 @@ public class NexusKeycloakClientLoader {
         NexusKeycloakClient client = clientMap.get(keycloakConfigName);
 
         if (client == null) {
+            LOGGER.debug("Attempting to instantiate new client...");
             File config = FileUtils.getFile(".", "etc", keycloakConfigName);
             if (config.exists()) {
                 client = new NexusKeycloakClient(source, sourceCode, config);
 
                 clientMap.put(keycloakConfigName, client);
+            } else {
+                LOGGER.debug(config.getAbsolutePath() + " file not found, will create no-op client");
             }
         }
         return client != null ? client : new NoopNexusKeycloakClient(source);
