@@ -3,6 +3,9 @@ package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +13,11 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.ClientAuthenticator;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.Http;
@@ -302,7 +309,23 @@ public class KeycloakAdminClient {
 
     public synchronized Http getHttp() {
         if (this.http == null) {
-            HttpClient httpClient = HttpClients.createDefault();
+            HttpClient httpClient = null;
+
+            try {
+                HttpClientBuilder builder = HttpClients.custom();
+
+                if (this.config.isDisableTrustManager()) {
+                    builder.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build());
+                }
+                if (this.config.isAllowAnyHostname()) {
+                    builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+                }
+
+                httpClient = builder.build();
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+
             ClientAuthenticator clientAuthenticator = (HttpMethod httpMethod) -> {
                 String token = getTokenManager().getAccessTokenString();
 
