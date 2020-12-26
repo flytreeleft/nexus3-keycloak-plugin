@@ -3,18 +3,21 @@ package org.github.flytreeleft.nexus3.keycloak.plugin.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.TrustAllStrategy;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
@@ -47,7 +50,7 @@ public class KeycloakAdminClient {
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*");
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakAdminClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(KeycloakAdminClient.class);
 
     private final AdapterConfig config;
     private Http http;
@@ -309,22 +312,7 @@ public class KeycloakAdminClient {
 
     public synchronized Http getHttp() {
         if (this.http == null) {
-            HttpClient httpClient = null;
-
-            try {
-                HttpClientBuilder builder = HttpClients.custom();
-
-                if (this.config.isDisableTrustManager()) {
-                    builder.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE).build());
-                }
-                if (this.config.isAllowAnyHostname()) {
-                    builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
-                }
-
-                httpClient = builder.build();
-            } catch (Exception e) {
-                throw new IllegalArgumentException(e);
-            }
+            HttpClient httpClient = createHttpClient(this.config);
 
             ClientAuthenticator clientAuthenticator = (HttpMethod httpMethod) -> {
                 String token = getTokenManager().getAccessTokenString();
@@ -337,6 +325,47 @@ public class KeycloakAdminClient {
         }
 
         return this.http;
+    }
+
+    private HttpClient createHttpClient(AdapterConfig config) {
+        HttpClientBuilder builder = HttpClients.custom();
+
+        if (config.isDisableTrustManager()) {
+            try {
+                builder.setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, TrustAllStrategy.INSTANCE)
+                                                             .build());
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        if (config.isAllowAnyHostname()) {
+            builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+        }
+
+        // Proxy url: http(s)://username:password@example.com/
+        String proxyUrl = config.getProxyUrl() != null ? config.getProxyUrl().trim() : null;
+        if (StringUtils.hasText(proxyUrl)) {
+            String url = proxyUrl.replaceAll("://([^/]*@)?", "://");
+            String auth = proxyUrl.replaceAll(".+://(([^/]*)@)?.+", "$2");
+
+            HttpHost proxy = HttpHost.create(url);
+            logger.info("Detect Keycloak behind the proxy '{}'", url);
+
+            if (!auth.isEmpty()) {
+                String user = auth.replaceAll(":.+$", "");
+                String pass = auth.replaceAll("^.+:", "");
+
+                CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(new AuthScope(proxy), new UsernamePasswordCredentials(user, pass));
+
+                builder.setDefaultCredentialsProvider(credentialsProvider);
+            }
+
+            RequestConfig requestConfig = RequestConfig.custom().setProxy(proxy).build();
+            builder.setDefaultRequestConfig(requestConfig);
+        }
+
+        return builder.build();
     }
 
     private KeycloakTokenManager getTokenManager() {
