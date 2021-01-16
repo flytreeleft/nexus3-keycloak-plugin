@@ -5,7 +5,7 @@ This plugin adds a Keycloak realm to Sonatype Nexus OSS and enables you to
 authenticate with Keycloak Realm Users and authorize with Keycloak realm/client roles or groups.
 
 It works with Nexus 3.x and Keycloak 3.x, Keycloak 4.x, Keycloak 5.x, Keycloak 6.x, Keycloak 7.x,
-Keycloak 8.x, Keycloak 9.x, Keycloak 10.x.
+Keycloak 8.x, Keycloak 9.x, Keycloak 10.x, Keycloak 11.x.
 
 ## Features
 
