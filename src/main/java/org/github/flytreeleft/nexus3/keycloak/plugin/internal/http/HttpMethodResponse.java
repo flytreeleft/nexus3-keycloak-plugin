@@ -1,14 +1,14 @@
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal.http;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import org.keycloak.util.JsonSerialization;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 public class HttpMethodResponse<R> {
     private final HttpMethod<R> method;
@@ -35,10 +35,13 @@ public class HttpMethodResponse<R> {
             @Override
             public R execute() {
                 return method.execute((InputStream inputStream) -> {
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    mapper.setVisibility(VisibilityChecker.Std.defaultInstance()
+                                                              .withFieldVisibility(JsonAutoDetect.Visibility.ANY));
+
                     try {
-                        JsonSerialization.mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-                        JsonSerialization.mapper.setVisibility(VisibilityChecker.Std.defaultInstance().withFieldVisibility(JsonAutoDetect.Visibility.ANY));
-                        return JsonSerialization.readValue(inputStream, responseType);
+                        return mapper.readValue(inputStream, responseType);
                     } catch (IOException e) {
                         throw new RuntimeException("Error parsing JSON response.", e);
                     }
