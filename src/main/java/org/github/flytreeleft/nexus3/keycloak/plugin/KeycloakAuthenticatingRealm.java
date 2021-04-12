@@ -74,6 +74,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
         }
 
         this.logger.info("doGetAuthorizationInfo for " + username);
+        this.logger.info("User roles: " + this.client.findRoleIdsByUserId(username));
 
         return new SimpleAuthorizationInfo(this.client.findRoleIdsByUserId(username));
     }
