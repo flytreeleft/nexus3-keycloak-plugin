@@ -163,7 +163,7 @@ As a last step you have to map your Keycloak realm client roles to nexus interna
 
 A good starting point is mapping one Keycloak realm client role to *nx-admin* role,
 so you can start managing Nexus with your Keycloak Login.
-* Choose a Keycloak realm client role
+* Choose a Keycloak realm client role (once the plugin is enabled you can check what keycloak roles are assigned to user using the Log Viewer)
 * Think up a new unique name for the mapped role
 * Add *nx-admin* to the contained roles
 
