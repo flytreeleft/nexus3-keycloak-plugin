@@ -5,7 +5,7 @@
 
     <groupId>org.github.flytreeleft</groupId>
     <artifactId>nexus3-keycloak-plugin</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <packaging>bundle</packaging>
 
