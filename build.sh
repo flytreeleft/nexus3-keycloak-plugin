@@ -1,4 +1,6 @@
 #!/bin/bash
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-mvn -PbuildKar clean package -Dmaven.test.skip=true
-
+pushd "${DIR}"
+    mvn -PbuildKar clean package -Dmaven.test.skip=true
+popd
