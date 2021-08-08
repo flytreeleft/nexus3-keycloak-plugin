@@ -16,7 +16,7 @@ docker run --rm \
                 -u root \
                 -v "${DCR_DATA_VOLUME}":/mnt \
                 --entrypoint /bin/chown \
-                -it ${DCR_IMAGE} \
+                ${DCR_IMAGE} \
                 -R jboss /mnt
 
 echo "Create new docker container - ${DCR_NAME}"
@@ -24,6 +24,7 @@ docker run -d --name ${DCR_NAME} \
                 -e KEYCLOAK_LOGLEVEL=DEBUG \
                 -e KEYCLOAK_USER=admin \
                 -e KEYCLOAK_PASSWORD=admin123 \
+                -e DB_VENDOR=h2 \
                 -v "${DCR_DATA_VOLUME}":/opt/jboss/keycloak/standalone/data \
                 -p 172.17.0.1:8086:8080 \
                 ${DCR_IMAGE}

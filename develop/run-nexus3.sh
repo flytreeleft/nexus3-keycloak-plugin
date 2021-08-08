@@ -27,7 +27,7 @@ docker run --rm \
                 -u root \
                 -v "${DCR_DATA_VOLUME}":/mnt \
                 --entrypoint /bin/chown \
-                -it ${DCR_IMAGE} \
+                ${DCR_IMAGE} \
                 -R nexus /mnt
 
 echo "Create new docker container - ${DCR_NAME}"
