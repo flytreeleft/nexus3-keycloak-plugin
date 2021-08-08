@@ -43,7 +43,7 @@ public class HttpMethodResponse<R> {
                     try {
                         return mapper.readValue(inputStream, responseType);
                     } catch (IOException e) {
-                        throw new RuntimeException("Error parsing JSON response.", e);
+                        throw new RuntimeException("Error parsing JSON response for type " + responseType.getType(), e);
                     }
                 });
             }

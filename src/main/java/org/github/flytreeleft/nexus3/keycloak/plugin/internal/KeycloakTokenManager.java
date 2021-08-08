@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KeycloakTokenManager {
-    private static final long DEFAULT_MIN_VALIDITY = 30; // seconds
+    private static final Logger logger = LoggerFactory.getLogger(KeycloakTokenManager.class);
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final long DEFAULT_MIN_VALIDITY = 30; // seconds
 
     private AccessTokenResponse currentToken;
     private long expirationTime; // seconds
@@ -70,10 +70,21 @@ public class KeycloakTokenManager {
 
         synchronized (this) {
             this.currentToken = httpMethod.response().json(AccessTokenResponse.class).execute();
-            this.expirationTime = requestTime + this.currentToken.getExpiresIn();
 
-            this.logger.info("Token {} will be expired after {}s", this.currentToken, this.currentToken.getExpiresIn());
+            if (this.currentToken != null) {
+                this.expirationTime = requestTime + this.currentToken.getExpiresIn();
+
+                logger.info("Token {} will be expired after {}s", this.currentToken, this.currentToken.getExpiresIn());
+            }
         }
+
+        if (this.currentToken == null) {
+            throw new RuntimeException("The access token can not be updated for the client "
+                                       + this.config.getResource()
+                                       + " of "
+                                       + this.config.getRealm());
+        }
+
         return this.currentToken;
     }
 

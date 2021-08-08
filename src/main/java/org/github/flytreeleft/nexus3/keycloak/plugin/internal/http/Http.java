@@ -1,10 +1,10 @@
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal.http;
 
+import java.net.URI;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.RequestBuilder;
 import org.keycloak.representations.adapters.config.AdapterConfig;
-
-import java.net.URI;
 
 public class Http {
     private final AdapterConfig config;
@@ -51,9 +51,11 @@ public class Http {
 
     private URI uri(String path, Object... placeholders) {
         String authServerUrl = this.config.getAuthServerUrl();
+
         if (authServerUrl.endsWith("/") && path.startsWith("/")) {
-            authServerUrl = authServerUrl.substring(0, authServerUrl.length()-1 );
+            authServerUrl = authServerUrl.substring(0, authServerUrl.length() - 1);
         }
+
         return URI.create(authServerUrl + String.format(path, placeholders));
     }
 

@@ -1,15 +1,5 @@
 package org.github.flytreeleft.nexus3.keycloak.plugin.internal.http;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.message.BasicNameValuePair;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -19,7 +9,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HttpMethod<R> {
+    private static final Logger logger = LoggerFactory.getLogger(HttpMethod.class);
+
     private final HttpClient httpClient;
     private final ClientAuthenticator authenticator;
     private final RequestBuilder builder;
@@ -44,12 +49,14 @@ public class HttpMethod<R> {
     }
 
     public R execute(HttpResponseProcessor<R> responseProcessor) {
+        HttpUriRequest request = null;
         InputStream inputStream = null;
 
         try {
             preExecute(this.builder);
+            request = this.builder.build();
 
-            HttpResponse response = this.httpClient.execute(this.builder.build());
+            HttpResponse response = this.httpClient.execute(request);
             HttpEntity entity = response.getEntity();
 
             if (entity != null) {
@@ -59,13 +66,16 @@ public class HttpMethod<R> {
             StatusLine statusLine = response.getStatusLine();
             int statusCode = statusLine.getStatusCode();
 
+            logger.debug("{} - {}", request.getURI(), statusCode);
             if (statusCode == 404) {
                 return null;
             } else if (statusCode < 200 || statusCode >= 300) {
-                throw new HttpResponseException(
-                        "Unexpected response from server: " + statusCode + " / " + statusLine.getReasonPhrase(),
-                        statusCode,
-                        statusLine.getReasonPhrase());
+                throw new HttpResponseException(String.format("Unexpected response for url %s: %d / %s",
+                                                              request.getURI(),
+                                                              statusCode,
+                                                              statusLine.getReasonPhrase()),
+                                                statusCode,
+                                                statusLine.getReasonPhrase());
             }
 
             if (inputStream == null) {
@@ -76,7 +86,10 @@ public class HttpMethod<R> {
         } catch (HttpResponseException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error executing http method [" + this.builder + "].", e);
+            if (request != null) {
+                logger.error("Error executing http method for url {}", request.getURI(), e);
+            }
+            throw new RuntimeException(e);
         } finally {
             if (inputStream != null) {
                 try {

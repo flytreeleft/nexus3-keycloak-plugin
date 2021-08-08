@@ -69,6 +69,7 @@ public class NexusKeycloakClient {
 
         UserInfo userInfo = this.keycloakAdminClient.obtainUserInfo(credentials);
         if (userInfo == null) {
+            logger.info("The UserInfo of {} can not be obtained", principal);
             return false;
         }
 

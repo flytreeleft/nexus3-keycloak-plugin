@@ -12,6 +12,7 @@
  */
 package org.github.flytreeleft.nexus3.keycloak.plugin;
 
+import java.util.Set;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -58,7 +59,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
     @Override
     protected void onInit() {
         super.onInit();
-        this.logger.info(String.format("Keycloak Realm %s initialized...", getClass().getName()));
+        this.logger.info("Keycloak Realm {} initialized...", getClass().getName());
     }
 
     @Override
@@ -73,10 +74,10 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
             return null;
         }
 
-        this.logger.info("doGetAuthorizationInfo for " + username);
-        this.logger.info("User roles: " + this.client.findRoleIdsByUserId(username));
+        Set<String> userRoles = this.client.findRoleIdsByUserId(username);
+        this.logger.info("doGetAuthorizationInfo for {} with roles {}", username, userRoles);
 
-        return new SimpleAuthorizationInfo(this.client.findRoleIdsByUserId(username));
+        return new SimpleAuthorizationInfo(userRoles);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class KeycloakAuthenticatingRealm extends AuthorizingRealm {
                              token.getClass().getName(),
                              authenticated);
         } catch (RuntimeException e) {
-            this.logger.info("doGetAuthenticationInfo failed: " + e.getMessage(), e);
+            this.logger.info("doGetAuthenticationInfo failed for {}", token.getPrincipal(), e);
         }
 
         if (authenticated) {
