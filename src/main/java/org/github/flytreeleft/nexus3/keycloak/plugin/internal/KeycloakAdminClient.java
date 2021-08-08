@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -29,6 +30,7 @@ import org.apache.shiro.util.StringUtils;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.ClientAuthenticator;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.Http;
 import org.github.flytreeleft.nexus3.keycloak.plugin.internal.http.HttpMethod;
+import org.github.flytreeleft.nexus3.keycloak.plugin.internal.mapper.KeycloakMapper;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.common.util.KeycloakUriBuilder;
 import org.keycloak.constants.ServiceUrlConstants;
@@ -82,16 +84,25 @@ public class KeycloakAdminClient {
                                     .build(getRealm());
         HttpMethod<AccessTokenResponse> httpMethod = getHttp().post(uri);
 
-        httpMethod = httpMethod.form()
-                               .param(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD)
-                               .param("username", username)
-                               .param("password", password);
-
-        if (getConfig().isPublicClient()) {
-            httpMethod.param(OAuth2Constants.CLIENT_ID, getConfig().getResource());
+        if (KeycloakMapper.isServiceAccount(username)) {
+            String clientId = KeycloakMapper.getClientIdFromServiceAccount(username);
+            // https://github.com/keycloak/keycloak-documentation/blob/master/server_admin/topics/clients/oidc/service-accounts.adoc
+            httpMethod = httpMethod.form()
+                                   .param(OAuth2Constants.GRANT_TYPE, OAuth2Constants.CLIENT_CREDENTIALS)
+                                   .authorizationBasic(clientId, password);
+            logger.info("Try to obtain the access token for the service account {}", username);
         } else {
-            httpMethod.authorizationBasic(getConfig().getResource(),
-                                          getConfig().getCredentials().get("secret").toString());
+            httpMethod = httpMethod.form()
+                                   .param(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD)
+                                   .param("username", username)
+                                   .param("password", password);
+
+            if (getConfig().isPublicClient()) {
+                httpMethod = httpMethod.param(OAuth2Constants.CLIENT_ID, getConfig().getResource());
+            } else {
+                httpMethod = httpMethod.authorizationBasic(getConfig().getResource(),
+                                                           getConfig().getCredentials().get("secret").toString());
+            }
         }
 
         return httpMethod.response().json(AccessTokenResponse.class).execute();
@@ -122,18 +133,36 @@ public class KeycloakAdminClient {
             return null;
         }
 
-        HttpMethod<List<UserRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users", getRealm());
-
         boolean isEmail = isEmail(userNameOrEmail);
-        if (isEmail) {
-            httpMethod.param("email", userNameOrEmail);
+        List<UserRepresentation> users = null;
+
+        if (KeycloakMapper.isServiceAccount(userNameOrEmail)) {
+            String clientId = KeycloakMapper.getClientIdFromServiceAccount(userNameOrEmail);
+            ClientRepresentation client = getRealmClient(clientId);
+
+            HttpMethod<UserRepresentation> httpMethod
+                    = getHttp().get("/admin/realms/%s/clients/%s/service-account-user", getRealm(), client.getId());
+
+            logger.info("Try to get UserRepresentation for the service account {}", userNameOrEmail);
+
+            UserRepresentation user = httpMethod.authentication().response().json(UserRepresentation.class).execute();
+            if (user != null) {
+                users = Collections.singletonList(user);
+            }
         } else {
-            httpMethod.param("username", userNameOrEmail);
+            HttpMethod<List<UserRepresentation>> httpMethod = getHttp().get("/admin/realms/%s/users", getRealm());
+
+            if (isEmail) {
+                httpMethod = httpMethod.param("email", userNameOrEmail);
+            } else {
+                httpMethod = httpMethod.param("username", userNameOrEmail);
+            }
+
+            users = httpMethod.authentication()
+                              .response()
+                              .json(new TypeReference<List<UserRepresentation>>() {})
+                              .execute();
         }
-        List<UserRepresentation> users = httpMethod.authentication()
-                                                   .response()
-                                                   .json(new TypeReference<List<UserRepresentation>>() {})
-                                                   .execute();
 
         if (users != null) {
             for (UserRepresentation user : users) {
@@ -265,7 +294,7 @@ public class KeycloakAdminClient {
     }
 
     public List<GroupRepresentation> getRealmGroupsOfUser(UserRepresentation user) {
-        if (user == null) {
+        if (user == null || KeycloakMapper.isServiceAccount(user.getUsername())) {
             return null;
         }
 

@@ -17,19 +17,39 @@ public class KeycloakMapper {
     public static final String REALM_ROLE_PREFIX = "RealmRole";
     public static final String REALM_GROUP_PREFIX = "RealmGroup";
 
+    public static final String USER_SERVICE_ACCOUNT = "ServiceAccount";
+    public static final String USER_SERVICE_ACCOUNT_PREFIX = "service-account-";
+
+    public static boolean isServiceAccount(String username) {
+        return username.startsWith(USER_SERVICE_ACCOUNT_PREFIX);
+    }
+
+    public static String getClientIdFromServiceAccount(String serviceAccount) {
+        return serviceAccount.replaceAll("^" + USER_SERVICE_ACCOUNT_PREFIX + "([^@]+).*$", "$1");
+    }
+
     public static User toUser(String source, UserRepresentation representation) {
         if (representation == null) {
             return null;
         }
 
+        String username = representation.getUsername();
         User user = new User();
-        user.setUserId(representation.getUsername());
-        user.setFirstName(representation.getFirstName());
-        user.setLastName(representation.getLastName());
+
+        user.setUserId(username);
         user.setEmailAddress(representation.getEmail());
         user.setReadOnly(true);
         user.setStatus(representation.isEnabled() ? UserStatus.active : UserStatus.disabled);
         user.setSource(source);
+
+        if (isServiceAccount(username)) {
+            user.setFirstName(getClientIdFromServiceAccount(username));
+            user.setLastName(USER_SERVICE_ACCOUNT);
+        } else {
+            user.setFirstName(representation.getFirstName());
+            user.setLastName(representation.getLastName());
+        }
+
         return user;
     }
 
@@ -88,8 +108,8 @@ public class KeycloakMapper {
     /** Just for compatibility */
     public static Set<String> toCompatibleRoleIds(String source, List<?>... lists) {
         return toRoles(source, null, lists, true).stream()
-                                               .map(Role::getRoleId)
-                                               .collect(Collectors.toCollection(LinkedHashSet::new));
+                                                 .map(Role::getRoleId)
+                                                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public static Set<String> toRoleIds(String source, String sourceCode, List<?>... lists) {
@@ -133,6 +153,7 @@ public class KeycloakMapper {
         role.setDescription(representation.getDescription());
         role.setReadOnly(true);
         role.setSource(source);
+
         return role;
     }
 }
